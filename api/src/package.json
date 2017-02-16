@@ -1,0 +1,24 @@
+{
+  "name": "weCode-crimson",
+  "version": "0.0.0",
+  "author": "Szasz Tamas-Csaba",
+  "contributors": [
+    {
+      "name": "Szasz Tamas-Csaba",
+      "email": "szaszdex@gmail.com"
+    }
+  ],
+  "main": "app.js",
+  "private": "true",
+  "description": "WeCode rest-api server",
+  "dependencies": {
+    "async": "*",
+    "bcrypt-nodejs": "*",
+    "express": "*",
+    "jsonwebtoken": "*",
+    "mongoose": "*",
+    "uuid": "^3.0.1",
+    "winston": "*"
+  },
+  "license": "<undefined>"
+}
