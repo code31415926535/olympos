@@ -1,31 +1,23 @@
 var mongoose = require('mongoose');
-const uuidV4 = require('uuid/v4');
 
 var taskSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
         unique: true
-    },
-    created_by: {
-        type: String,
-        required: true
-    },
-    description: String,
+    }
     test: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Test",
-        required: true
+        ref: "Test"
     },
+    description: String,
 
-    uuid: String,
 	created_at: Date,
 	updated_at: Date
 });
 
 taskSchema.pre('init', function (next) {
     this.created_at = new Date();
-    this.uuid = uuidV4();
 
     next();
 });
@@ -35,5 +27,13 @@ taskSchema.pre('save', function(next) {
 
 	next();
 });
+
+taskSchema.methods.toDTO = function() {
+    return {
+        "name": this["name"],
+        "test": this["test"].toDTO(),
+        "description": this["description"]
+    }
+}
 
 module.exports = mongoose.model('Task', taskSchema);

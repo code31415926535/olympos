@@ -45,14 +45,14 @@ envSchema.statics.fromDTO = function(dto, callback) {
         }
 
         if (env == null) {
-            new Env(dto).save(function(err) {
+            var env = new Env(dto).save(function(err) {
                 if (err) {
                     callback(err, null);
                     return;
-                } else {
-                    callback(null, env);
-                    return;
                 }
+
+                callback(null, env);
+                return;
             });
         };
 

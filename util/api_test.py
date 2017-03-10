@@ -93,6 +93,12 @@ def test_test():
     response = requests.delete(url=API_SERVER + "/test/test-test")
     print response.status_code
 
+    print "--------------"
+    print "Delete env"
+    response = requests.delete(url=API_SERVER + "/env/test-env")
+    print response.status_code
+
+
 if __name__ == "__main__":
-    # env_test()
+    env_test()
     test_test()

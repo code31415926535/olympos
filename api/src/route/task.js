@@ -6,49 +6,49 @@ var bodyParser = require('body-parser');
 var Status = require(global.root + '/config/status');
 var APICustomError = require(global.root + '/error/APICustomError');
 
-var Env = require(global.root + '/model/envDAO');
 var Test = require(global.root + '/model/testDAO');
+var Task = require(global.root + '/model/taskDAO');
 
 router.use(bodyParser.json());
 
 router.get('/', function(req, res, next) {
-    winston.info("Getting all 'test'-s...");
-    Test.find({}).populate("env").exec(function(err, tests) {
+    winston.info("Getting all 'task'-s...");
+    Task.find({}).populate("test").exec(function(err, tasks) {
         if (err) {
             next(new APICustomError(Status.InternalServerError));
         }
 
-        for  (var i = 0; i != tests.length; i++) {
-            tests[i] = tests[i].toDTO();
+        for  (var i = 0; i != tasks.length; i++) {
+            tasks[i] = tasks[i].toDTO();
         }
 
-        res.status(Status.OK).json(tests);
+        res.status(Status.OK).json(tasks);
     });
 });
 
 router.post('/', function(req, res, next) {
-    winston.info("Creating 'test'...");
+    winston.info("Creating 'task'...");
     payload = req.body;
 
     filter = {name: payload["name"]};
-    Test.findOne(filter, function(err, test) {
+    Task.findOne(filter, function(err, task) {
         if (err) {
             next(new APICustomError(Status.InternalServerError));
         }
 
-        if (test != null) {
+        if (task != null) {
             next(new APICustomError(Status.Conflict));
         }
 
-        var test = payload;
-        Env.fromDTO(payload["env"], function(err, env) {
+        var task = payload;
+        Test.fromDTO(payload["test"], function(err, task) {
             if (err) {
                 next(new APICustomError(Status.InternalServerError));
             };
 
-            test["env"] = env;
+            task["task"] = task;
 
-            new Test(test).save(function(err) {
+            new Task(task).save(function(err) {
                 if (err) {
                     next(new APICustomError(Status.InternalServerError));
                 }
@@ -67,32 +67,32 @@ router.delete('/', function(req, res, next) {
     next(new APICustomError(Status.NotImplemented));
 });
 
-router.get('/:testName', function(req, res, next) {
+router.get('/:taskName', function(req, res, next) {
     winston.info("Getting 'text' by name...");
-    var testName = req.params["testName"];
+    var taskName = req.params["taskName"];
 
-    Test.findOne({name: testName}).populate("env").exec(function(err, test){
+    Task.findOne({name: taskName}).populate("test").exec(function(err, task){
         if (err) {
             next(new APICustomError(Status.InternalServerError));
         };
 
-        res.status(Status.OK).json(test.toDTO());
+        res.status(Status.OK).json(task.toDTO());
     });
 });
 
-router.put('/:testName', function(req, res, next) {
+router.put('/:taskName', function(req, res, next) {
     next(new APICustomError(Status.NotImplemented));
 });
 
-router.post('/:testName', function(req, res, next) {
+router.post('/:taskName', function(req, res, next) {
     next(new APICustomError(Status.NotImplemented));
 });
+env
+router.delete('/:taskName', function(req, res, next) {
+    winston.info("Deleteting 'task' by name...");
+    var taskName = req.params["taskName"];
 
-router.delete('/:testName', function(req, res, next) {
-    winston.info("Deleteting 'test' by name...");
-    var testName = req.params["testName"];
-
-    Test.remove({name: testName}, function(err) {
+    Task.remove({name: taskName}, function(err) {
         if (err) {
             next(Status.InternalServerError);
         }

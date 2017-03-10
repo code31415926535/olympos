@@ -1,5 +1,4 @@
 var mongoose = require('mongoose');
-const uuidV4 = require('uuid/v4');
 
 var testSchema = new mongoose.Schema({
     name: {
@@ -19,14 +18,12 @@ var testSchema = new mongoose.Schema({
 
     description: String,
 
-    uuid: String,
 	created_at: Date,
 	updated_at: Date
 });
 
 testSchema.pre('init', function (next) {
     this.created_at = new Date();
-    this.uuid = uuidV4();
 
     next();
 });
@@ -47,10 +44,34 @@ testSchema.methods.toDTO = function() {
 }
 
 testSchema.static.fromDTO = function(dto, callback) {
-    this.model('Test').findOne(dto, function(err, test) {
+    var Test = this.model('Test');
+    Test.findOne(dto, function(err, test) {
         if (err) {
             callback(err, null);
+            return;
         };
+
+        if (test == null) {
+            Env.fromDTO(dto["env"], function(err, env) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                };
+
+                dto["env"] = env;
+                var test = new Test(dto).save(function(err) {
+                    if (err) {
+                        callback(err, null);
+                        return;
+                    }
+
+                    callback(null, test);
+                    return;
+                });
+
+                callback(null, test);
+            });
+        }
 
         callback(null, test);
     })
