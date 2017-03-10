@@ -1,20 +1,22 @@
 'use strict';
 
+var Status = require(global.root + '/config/status');
+
 module.exports = function APICustomError(code) {
     Error.captureStackTrace(this, this.constructor);
     this.name = this.constructor.name;
 
     switch (code) {
-        case 404:
+        case Status.NotFound:
             this.message = "Not Found!";
             break;
-        case 409:
+        case Status.Conflict:
             this.message = "Conflict! Operation not applicable in current state!";
             break;
-        case 500:
+        case Status.InternalServerError:
             this.message = "Internal Server Error!";
             break;
-        case 501:
+        case Status.NotImplemented:
             this.message = "Not Implemented!";
             break;
         default:

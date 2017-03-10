@@ -7,7 +7,7 @@ var testSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    lab: {
+    env: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Env",
         required: true
@@ -15,7 +15,9 @@ var testSchema = new mongoose.Schema({
     config: {
         type: String,
         required: true
-    }
+    },
+
+    description: String,
 
     uuid: String,
 	created_at: Date,
@@ -34,5 +36,24 @@ testSchema.pre('save', function(next) {
 
 	next();
 });
+
+testSchema.methods.toDTO = function() {
+    return {
+        "name": this["name"],
+        "env": this["env"].toDTO(),
+        "config": this["config"],
+        "description": this["description"]
+    }
+}
+
+testSchema.static.fromDTO = function(dto, callback) {
+    this.model('Test').findOne(dto, function(err, test) {
+        if (err) {
+            callback(err, null);
+        };
+
+        callback(null, test);
+    })
+}
 
 module.exports = mongoose.model('Test', testSchema);

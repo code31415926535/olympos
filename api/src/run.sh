@@ -2,11 +2,8 @@ export CRIMSON_PROTOCOL=http
 export CRIMSON_PORT=8080
 export LOG_LEVEL=debug
 export DB_HOSTNAME=localhost
-export DB_PORT=27017
+export DB_PORT=5432
 export DB_NAME=test
-
-export CRIMSON_SECRET=boiler
-export CRIMSON_TOKEN_LIFETIME=1800
 
 nodejs app
 
@@ -17,5 +14,3 @@ unset DB_HOSTNAME
 unset DB_PORT
 unset DB_NAME
 
-unset CRIMSON_SECRET
-unset CRIMSON_TOKEN_LIFETIME

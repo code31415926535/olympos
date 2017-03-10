@@ -1,5 +1,4 @@
 var mongoose = require('mongoose');
-const uuidV4 = require('uuid/v4');
 
 var envSchema = new mongoose.Schema({
     name: {
@@ -13,14 +12,12 @@ var envSchema = new mongoose.Schema({
         unique: true
     },
 
-    uuid: String,
 	created_at: Date,
 	updated_at: Date
 });
 
 envSchema.pre('init', function (next) {
     this.created_at = new Date();
-    this.uuid = uuidV4();
 
     next();
 });
@@ -30,5 +27,37 @@ envSchema.pre('save', function(next) {
 
 	next();
 });
+
+// Utility functions
+envSchema.methods.toDTO = function() {
+    return {
+        "name": this["name"],
+        "image": this["image"]
+    };
+}
+
+envSchema.statics.fromDTO = function(dto, callback) {
+    var Env = this.model('Env');
+    Env.findOne(dto, function(err, env) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+
+        if (env == null) {
+            new Env(dto).save(function(err) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                } else {
+                    callback(null, env);
+                    return;
+                }
+            });
+        };
+
+        callback(null, env);
+    });
+}
 
 module.exports = mongoose.model('Env', envSchema);

@@ -15,7 +15,6 @@
     "async": "*",
     "bcrypt-nodejs": "*",
     "express": "*",
-    "jsonwebtoken": "*",
     "mongoose": "*",
     "uuid": "^3.0.1",
     "winston": "*"
