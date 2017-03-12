@@ -1,10 +1,14 @@
 #!/bin/bash
 
 if [ $1 = "up" ]; then
-	docker run --name we-db -p 5432:27017 -d wecode/db:latest
+	docker run --hostname athena --name athena -d olympos/athena:latest
 fi
 
 if [ $1 = "down" ]; then
-	docker stop we-db
-	docker rm we-db
+	docker stop athena
+	docker rm athena
+fi
+
+if [ $1 = "build" ]; then
+	cd ../db && ./build.sh
 fi

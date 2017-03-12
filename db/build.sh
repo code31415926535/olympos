@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build --tag wecode/db:latest .
+docker build --tag olympos/athena:latest .
