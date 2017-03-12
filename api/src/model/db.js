@@ -1,11 +1,10 @@
 var mongoose = require('mongoose');
-var nconf = require('nconf');
 
 /* TODO: Use username and password */
 
-var dbHost = process.env.DB_HOSTNAME
-var dbPort = process.env.DB_PORT
-var dbName = process.env.DB_NAME
+var dbHost = process.env.ATHENA_HOSTNAME
+var dbPort = process.env.ATHENA_PORT
+var dbName = process.env.ATHENA_NAME
 
 module.exports.connect = function (callback) {
 		var db_url = 'mongodb://'

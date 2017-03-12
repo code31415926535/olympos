@@ -7,10 +7,12 @@ var Status = require(global.root + '/config/status');
 var APICustomError = require(global.root + '/error/APICustomError');
 var env = require(global.root + '/route/env');
 var test = require(global.root + '/route/test');
+var task = require(global.root + '/route/task');
 
 /* Map routes */
 router.use('/test', test);
 router.use('/env', env);
+router.use('/task', task);
 router.use('/*', function(req, res) {
     res.status(Status.OK).json({"code":"OK","message":"Wellcome to crimson rest-api server!"});
 });

@@ -7,6 +7,9 @@ module.exports = function APICustomError(code) {
     this.name = this.constructor.name;
 
     switch (code) {
+        case Status.BadRequest:
+            this.message = "Bad Request!";
+            break;
         case Status.NotFound:
             this.message = "Not Found!";
             break;

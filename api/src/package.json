@@ -1,5 +1,5 @@
 {
-  "name": "weCode-crimson",
+  "name": "olympos-ares",
   "version": "0.0.0",
   "author": "Szasz Tamas-Csaba",
   "contributors": [
@@ -10,14 +10,19 @@
   ],
   "main": "app.js",
   "private": "true",
-  "description": "WeCode rest-api server",
+  "description": "olympos rest-api server",
   "dependencies": {
     "async": "*",
     "bcrypt-nodejs": "*",
+    "cors": "^2.8.1",
+    "exec": "^0.2.1",
     "express": "*",
     "mongoose": "*",
     "uuid": "^3.0.1",
     "winston": "*"
+  },
+  "scripts": {
+    "start": "nodejs app.js"  
   },
   "license": "<undefined>"
 }

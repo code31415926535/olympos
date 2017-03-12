@@ -5,7 +5,7 @@ var taskSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true
-    }
+    },
     test: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Test"
@@ -27,6 +27,15 @@ taskSchema.pre('save', function(next) {
 
 	next();
 });
+
+var populateTest = function(next) {
+    this.populate('test');
+
+    next();
+}
+
+taskSchema.pre('find', populateTest);
+taskSchema.pre('findOne', populateTest);
 
 taskSchema.methods.toDTO = function() {
     return {

@@ -11,6 +11,7 @@ var envSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    description: String,
 
 	created_at: Date,
 	updated_at: Date
@@ -32,28 +33,22 @@ envSchema.pre('save', function(next) {
 envSchema.methods.toDTO = function() {
     return {
         "name": this["name"],
-        "image": this["image"]
+        "image": this["image"],
+        "description": this["description"]
     };
 }
 
 envSchema.statics.fromDTO = function(dto, callback) {
     var Env = this.model('Env');
-    Env.findOne(dto, function(err, env) {
+    Env.findOne({name: dto["name"]}, function(err, env) {
         if (err) {
             callback(err, null);
             return;
         }
 
         if (env == null) {
-            var env = new Env(dto).save(function(err) {
-                if (err) {
-                    callback(err, null);
-                    return;
-                }
-
-                callback(null, env);
-                return;
-            });
+            callback("Error", null);
+            return;
         };
 
         callback(null, env);

@@ -4,6 +4,7 @@ var http = require('http');
 var async = require('async');
 var path = require('path');
 var winston = require('winston');
+var cors = require('cors');
 
 global.root = path.resolve(__dirname);
 
@@ -13,6 +14,7 @@ require(global.root + '/config/log')();
 
 /* Setup the application */
 var setup = function (callback) {
+    app.use(cors());
     app.use(master);
 
     callback();
@@ -21,8 +23,8 @@ var setup = function (callback) {
 /* Start the application */
 var launch = function (callback) {
 
-    var protocol = process.env.CRIMSON_PROTOCOL;
-    var port = process.env.CRIMSON_PORT;
+    var protocol = process.env.ARES_PROTOCOL;
+    var port = process.env.ARES_PORT;
 
     if (protocol == 'http') {
         winston.info('Creating http server on port ' + port)
