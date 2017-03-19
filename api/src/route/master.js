@@ -8,11 +8,13 @@ var APICustomError = require(global.root + '/error/APICustomError');
 var env = require(global.root + '/route/env');
 var test = require(global.root + '/route/test');
 var task = require(global.root + '/route/task');
+var job = require(global.root + '/route/job');
 
 /* Map routes */
 router.use('/test', test);
 router.use('/env', env);
 router.use('/task', task);
+router.use('/job', job);
 router.use('/*', function(req, res) {
     res.status(Status.OK).json({"code":"OK","message":"Wellcome to crimson rest-api server!"});
 });
@@ -35,6 +37,9 @@ router.use(function (err, req, res, next) {
             code: err.code,
             message: err.message,
         };
+        if (err.description != undefined) {
+            response.description = err.description;
+        }
     } else {
         response = {
             code: Status.InternalServerError,

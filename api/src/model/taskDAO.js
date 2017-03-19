@@ -10,6 +10,10 @@ var taskSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Test"
     },
+    jobs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job"
+    }],
     description: String,
 
 	created_at: Date,

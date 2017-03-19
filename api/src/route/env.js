@@ -62,11 +62,11 @@ router.post('/', function(req, res, next) {
 });
 
 router.put('/', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
+    next(new APICustomError(Status.MethodNotAllowed));
 });
 
 router.delete('/', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
+    next(new APICustomError(Status.MethodNotAllowed));
 });
 
 // Get and Delete by name
@@ -92,7 +92,7 @@ router.get('/:envName', function(req, res, next) {
 });
 
 router.post('/:envName', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
+    next(new APICustomError(Status.MethodNotAllowed));
 });
 
 router.put('/envName', function(req, res, next) {

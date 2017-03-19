@@ -72,11 +72,11 @@ router.post('/', function(req, res, next) {
 });
 
 router.put('/', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
+    next(new APICustomError(Status.MethodNotAllowed));
 });
 
 router.delete('/', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
+    next(new APICustomError(Status.MethodNotAllowed));
 });
 
 router.get('/:testName', function(req, res, next) {
@@ -105,7 +105,7 @@ router.put('/:testName', function(req, res, next) {
 });
 
 router.post('/:testName', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
+    next(new APICustomError(Status.MethodNotAllowed));
 });
 
 router.delete('/:testName', function(req, res, next) {
@@ -139,7 +139,7 @@ router.delete('/:testName', function(req, res, next) {
 });
 
 router.get('/:testName/files', function(req, res, next) {
-    winston.info("Getting 'all test files' by name...");
+    winston.info("Getting 'all test files' by test name...");
     var testName = req.params["testName"];
 
     Test.findOne({name: testName}).populate("files").exec(function(err, test) {
@@ -164,11 +164,11 @@ router.get('/:testName/files', function(req, res, next) {
 });
 
 router.put('/:testName/files', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
+    next(new APICustomError(Status.MethodNotAllowed));
 });
 
 router.post('/:testName/files', function(req, res, next) {
-    winston.info("Getting 'all test files' by name...");
+    winston.info("Creating 'test file' by test name...");
     var testName = req.params["testName"];
     var payload = req.body;
     winston.debug(payload);
@@ -208,7 +208,7 @@ router.post('/:testName/files', function(req, res, next) {
 });
 
 router.delete('/:testName/files', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
+    next(new APICustomError(Status.MethodNotAllowed));
 });
 
 module.exports = router;

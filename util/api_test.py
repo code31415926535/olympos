@@ -2,7 +2,7 @@ import json
 import requests
 import time
 
-API_SERVER ="http://localhost:8080"
+API_SERVER = "http://localhost:8080"
 SEPARATOR = "-------------------------"
 
 
@@ -20,7 +20,7 @@ class Env:
             "description": description
         }
         response = requests.post(url=API_SERVER + "/env", json=env)
-        print "Status: {}" .format(response.status_code)
+        print "Status: {}".format(response.status_code)
         print SEPARATOR
         return env
 
@@ -35,8 +35,8 @@ class Env:
     @staticmethod
     def get_by_name(name):
         print SEPARATOR
-        print "Getting env by name: {}" .format(name)
-        response = requests.get(url=API_SERVER + "/env/{}" .format(name))
+        print "Getting env by name: {}".format(name)
+        response = requests.get(url=API_SERVER + "/env/{}".format(name))
         print json.dumps(response.json(), indent=4)
         print SEPARATOR
         return response.json()
@@ -79,8 +79,8 @@ class Test:
     @staticmethod
     def get_by_name(name):
         print SEPARATOR
-        print "Getting test by name: {}" .format(name)
-        response = requests.get(url=API_SERVER + "/test/{}" .format(name))
+        print "Getting test by name: {}".format(name)
+        response = requests.get(url=API_SERVER + "/test/{}".format(name))
         print json.dumps(response.json(), indent=4)
         print SEPARATOR
         return response.json()
@@ -88,28 +88,28 @@ class Test:
     @staticmethod
     def delete_by_name(name):
         print SEPARATOR
-        print "Delete test by name: {}" .format(name)
-        response = requests.delete(url=API_SERVER + "/test/{}" .format(name))
+        print "Delete test by name: {}".format(name)
+        response = requests.delete(url=API_SERVER + "/test/{}".format(name))
         print response.status_code
         print SEPARATOR
 
     @staticmethod
     def get_all_files(name):
         print SEPARATOR
-        print "Getting all files for test: {}" .format(name)
-        response = requests.get(url=API_SERVER + "/test/{}/files" .format(name))
+        print "Getting all files for test: {}".format(name)
+        response = requests.get(url=API_SERVER + "/test/{}/files".format(name))
         print json.dumps(response.json(), indent=4)
         print SEPARATOR
 
     @staticmethod
     def create_file(name, filename, file_content):
         print SEPARATOR
-        print "Creating file for test: {}" .format(name)
-        file = {
+        print "Creating file for test: {}".format(name)
+        f = {
             "name": filename,
             "content": file_content
         }
-        response = requests.post(url=API_SERVER + "/test/{}/files" .format(name), json=file)
+        response = requests.post(url=API_SERVER + "/test/{}/files".format(name), json=f)
         print response.status_code
         print SEPARATOR
 
@@ -143,8 +143,8 @@ class Task:
     @staticmethod
     def get_by_name(name):
         print SEPARATOR
-        print "Getting task by name: {}" .format(name)
-        response = requests.get(url=API_SERVER + "/task/{}" .format(name))
+        print "Getting task by name: {}".format(name)
+        response = requests.get(url=API_SERVER + "/task/{}".format(name))
         print json.dumps(response.json(), indent=4)
         print SEPARATOR
         return response.json()
@@ -152,9 +152,44 @@ class Task:
     @staticmethod
     def delete_by_name(name):
         print SEPARATOR
-        print "Delete task by name: {}" .format(name)
-        response = requests.delete(url=API_SERVER + "/task/{}" .format(name))
+        print "Delete task by name: {}".format(name)
+        response = requests.delete(url=API_SERVER + "/task/{}".format(name))
         print response.status_code
+        print SEPARATOR
+
+    @staticmethod
+    def create_submission(name, filename, file_content):
+        print SEPARATOR
+        print "Creating submission for task: {}".format(name)
+        pl = {
+            "file": {
+                "name": filename,
+                "content": file_content
+            }
+        }
+        response = requests.post(url=API_SERVER + "/task/{}/submission".format(name), json=pl)
+        print response.status_code
+        print SEPARATOR
+
+    @staticmethod
+    def get_all_submission(name):
+        print SEPARATOR
+        print "Getting all submissions for task: {}".format(name)
+        response = requests.get(url=API_SERVER + "/task/{}/submission".format(name))
+        print json.dumps(response.json(), indent=4)
+        print SEPARATOR
+
+
+class Job:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def get_all():
+        print SEPARATOR
+        print "Getting all jobs ..."
+        response = requests.get(url=API_SERVER + "/job")
+        print json.dumps(response.json(), indent=4)
         print SEPARATOR
 
 
@@ -204,6 +239,8 @@ def test_regression():
     Test.create_file("Gcc", "config.json", "{name:value}")
     Test.create_file("Gcc", "in.txt", "3")
     Test.create_file("Gcc", "out.txt", "3")
+    print "Add valid file to invalid test"
+    Test.create_file("Something", "config.json", "invalid")
 
     print "Getting files by valid name"
     Test.get_all_files("Gcc")
@@ -227,7 +264,7 @@ def task_regression():
     print "Recreate task"
     Task.create("Echo", test, "This should only echo")
     print "Create task with invalid test"
-    Task.create("Something", {"key":"value"}, "What")
+    Task.create("Something", {"key": "value"}, "What")
 
     print "Get all tasks"
     Task.get_all()
@@ -236,6 +273,16 @@ def task_regression():
     print "Get by invalid name"
     Task.get_by_name("Whatever")
 
+    # Submission
+    print "Create submission valid name"
+    Task.create_submission("Echo", "echo.cpp", "some content, I don't really care")
+    Task.create_submission("Echo", "echo.cpp", "some content, I don't really care")
+    print "Create submission invalid task"
+    Task.create_submission("something", "echo.cpp", "some content, I don't really care")
+    print "Get all submissions"
+    Task.get_all_submission("Echo")
+
+    # Delete
     print "Delete valid"
     Task.delete_by_name("Echo")
     print "Delete by invalid"
@@ -247,12 +294,20 @@ def task_regression():
     Env.delete_by_name("Main")
 
 
+def job_regression():
+    print "Getting all jobs"
+    Job.get_all()
+
+
 def full_regression():
     env_regression()
     time.sleep(2)
     test_regression()
     time.sleep(2)
     task_regression()
+    time.sleep(2)
+    job_regression()
+
 
 if __name__ == "__main__":
     full_regression()

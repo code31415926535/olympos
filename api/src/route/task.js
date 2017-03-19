@@ -7,6 +7,8 @@ var Status = require(global.root + '/config/status');
 var APICustomError = require(global.root + '/error/APICustomError');
 
 var Test = require(global.root + '/model/testDAO');
+var Job = require(global.root + '/model/jobDAO');
+var File = require(global.root + '/model/fileDAO');
 var Task = require(global.root + '/model/taskDAO');
 
 router.use(bodyParser.json());
@@ -69,15 +71,15 @@ router.post('/', function(req, res, next) {
 });
 
 router.put('/', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
+    next(new APICustomError(Status.MethodNotAllowed));
 });
 
 router.delete('/', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
+    next(new APICustomError(Status.MethodNotAllowed));
 });
 
 router.get('/:taskName', function(req, res, next) {
-    winston.info("Getting 'text' by name...");
+    winston.info("Getting 'task' by name...");
     var taskName = req.params["taskName"];
 
     Task.findOne({name: taskName}).populate("test").exec(function(err, task){
@@ -102,7 +104,7 @@ router.put('/:taskName', function(req, res, next) {
 });
 
 router.post('/:taskName', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
+    next(new APICustomError(Status.MethodNotAllowed));
 });
 
 router.delete('/:taskName', function(req, res, next) {
@@ -132,6 +134,93 @@ router.delete('/:taskName', function(req, res, next) {
             res.status(Status.OK).send();
         });
     });
+});
+
+/* Submission endpoint */
+router.get('/:taskName/submission', function(req, res, next) {
+    winston.info("Getting 'task submissions' by task name...");
+    var taskName = req.params["taskName"];
+
+    Task.findOne({name: taskName}).populate("jobs").exec(function(err, task){
+        if (err) {
+            winston.error(err);
+            next(new APICustomError(Status.InternalServerError));
+            return;
+        };
+
+        if (task == null) {
+            winston.error("Not Found");
+            next(new APICustomError(Status.NotFound));
+            return;
+        }
+
+        for (var i = 0; i != task.jobs.length; i++) {
+            task.jobs[i] = task.jobs[i].toSubmissionDTO();
+        }
+
+        res.status(Status.OK).json(task.jobs);
+    });
+});
+
+router.put('/:taskName/submission', function(req, res, next) {
+    next(new APICustomError(Status.MethodNotAllowed, "A submission cannot be modified!"));
+});
+
+router.post('/:taskName/submission', function(req, res, next) {
+    winston.info("Creating 'task submission' by task name...");
+    var taskName = req.params["taskName"];
+    var payload = req.body;
+    winston.debug(payload);
+
+    Task.findOne({name: taskName}, function(err, task) {
+        if (err) {
+            winston.error(err);
+            next(new APICustomError(Status.InternalServerError));
+            return;
+        };
+
+        if (task == null) {
+            winston.error("Does not exist!");
+            next(new APICustomError(Status.NotFound));
+            return;
+        }
+
+        var fl = payload["file"];
+        File.create(fl, function(err, file) {
+            if (err) {
+                winston.error(err);
+                next(new APICustomError(Status.InternalServerError));
+                return;
+            }
+
+            var jb = {
+                "submission_file": file,
+                "submission_id": task.jobs.length
+            };
+            Job.create(jb, function (err, job) {
+                if (err) {
+                    winston.error(err);
+                    next(new APICustomError(Status.InternalServerError));
+                    return;
+                }
+
+                task.jobs.push(job);
+                task.save(function(err) {
+                    if (err) {
+                        winston.error(err);
+                        next(new APICustomError(Status.InternalServerError));
+                        return;
+                    }
+                    // TODO: Start the job here
+                    res.status(Status.Created).send();
+                });
+            });
+        });
+    });
+});
+
+router.delete('/:taskName/submission', function(req, res, next) {
+    next(new APICustomError(Status.MethodNotAllowed, "A submission cannot be deleted!"));
 });
 
 module.exports = router;
