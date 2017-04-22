@@ -1,7 +1,9 @@
-export TEST_ROOT=./test
-export TEST_FILE_1=test.cpp
+export TEST_ROOT=/home/iamgod/Documents/weCode/tests/test
+export OUT_ROOT=/home/iamgod/Documents/weCode/tests
+export UUID=testuuid
 
 python main.py
 
-unset TEST_FILE_1
+unset UUID
 unset TEST_ROOT
+unset OUT_ROOT

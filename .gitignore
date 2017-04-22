@@ -2,3 +2,9 @@
 /tests/*
 /env/.idea/*
 /util/.idea/*
+/jobrunner/.idea/*
+/jobrunner/src/github.com/*
+/jobrunner/src/google.golang.org/*
+/jobrunner/src/golang.org/*
+/jobrunner/src/gopkg.in/*
+/jobrunner/pkg/*
