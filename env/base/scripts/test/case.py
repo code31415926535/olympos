@@ -1,3 +1,4 @@
+from exception.exception import TaskExecutionException
 
 
 class TestCase(object):
@@ -33,16 +34,30 @@ class TestCase(object):
         self.afterExecution = task
 
     def run_before_execution_task(self):
-        pass
+        if self.beforeExecution is not None:
+            self.beforeExecution.execute()
+            if self.beforeExecution.get_status_code() != 0:
+                raise TaskExecutionException(task=self.beforeExecution.name, error="Return code: {}"
+                                             .format(self.beforeExecution.get_status_code()))
 
     def run_execute_task(self):
-        pass
+        self.execute.execute()
+        if self.execute.get_status_code() != 0:
+            raise TaskExecutionException(task=self.execute.name, error="Return code: {}"
+                                         .format(self.execute.get_status_code()))
 
     def run_evaluate_task(self):
-        pass
+        self.evaluate.execute()
+        if self.evaluate.get_status_code() != 0:
+            return False
+        return True
 
     def run_after_execution_task(self):
-        pass
+        if self.afterExecution is not None:
+            self.afterExecution.execute()
+            if self.afterExecution.get_status_code() != 0:
+                raise TaskExecutionException(task=self.afterExecution.name, error="Return code: {}"
+                                             .format(self.afterExecution.get_status_code()))
 
     def get_name(self):
         return self.name

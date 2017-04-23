@@ -1,4 +1,5 @@
 import os
+import logging
 
 from task import Task
 from exception.exception import TaskExecutionException, TaskConfigurationException
@@ -25,6 +26,7 @@ class AssertFile(Task):
             raise TaskConfigurationException(task=self.name, reason="Bad task arguments.")
 
     def execute(self):
+        logging.debug("comparing files: {} - {}" .format(self.actual, self.expected))
         try:
             with open(os.path.expandvars(self.actual)) as fdActual:
                 with open(os.path.expandvars(self.expected)) as fdExpected:
