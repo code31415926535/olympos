@@ -1,4 +1,5 @@
 import os
+import logging
 
 from task import Task
 from exception.exception import TaskExecutionException, TaskConfigurationException
@@ -25,12 +26,10 @@ class Bash(Task):
             raise TaskConfigurationException(task=self.name, reason="Bad task arguments.")
 
     def execute(self):
-        try:
-            self.status_code = os.system(self.command)
-            if self.status_code != 0:
-                raise TaskExecutionException(task=self.name, error="Return code: {}" .format(self.status_code))
-        except Exception as exc:
-            raise TaskExecutionException(task=self.name, error="Got exception: {}" .format(exc))
+        logging.debug("executing bash command: {}" .format(self.command))
+        self.status_code = os.system(self.command)
+        if self.status_code != 0:
+            raise TaskExecutionException(task=self.name, error="Return code: {}" .format(self.status_code))
 
     def set_name(self):
         return "bash"

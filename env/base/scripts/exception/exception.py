@@ -1,11 +1,13 @@
-from enum import Enum
 
 
-class ErrorCodes(Enum):
-    UnknownError = "UnknownError"
-    LoadConfigurationError = "LoadConfigurationError"
-    TaskConfigurationError = "TaskConfigurationError"
-    TaskExecutionError = "TaskExecutionError"
+class ErrorCodes:
+    def __init__(self):
+        pass
+
+    UnknownError = 256
+    LoadConfigurationError = 1
+    TaskConfigurationError = 2
+    TaskExecutionError = 3
 
 
 class CustomException(Exception):
@@ -37,7 +39,7 @@ class TaskConfigurationException(CustomException):
         )
 
 
-class TaskExecutionException(Exception):
+class TaskExecutionException(CustomException):
     def __init__(self, task=None, error=""):
         super(TaskExecutionException, self).__init__(
             message="Failed executing task {}, got error: [{}]".format(task, error),
