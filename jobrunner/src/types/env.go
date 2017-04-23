@@ -8,7 +8,11 @@ import (
 var Log = logger.Log
 
 type Env struct {
-	Image	string `json:"image"`
+	Name		string `json:"name"`
+	Image		string `json:"image"`
+	Description 	string `json:"description"`
+	TestMount	string `json:"test_mount"`
+	OutMount	string `json:"out_mount"`
 }
 
 func (e Env) CheckImage() (bool) {

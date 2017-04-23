@@ -4,6 +4,7 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 	"logger"
 	"fmt"
+	"bytes"
 )
 
 var client *docker.Client = nil
@@ -11,12 +12,16 @@ var client *docker.Client = nil
 type DockerExecutionEngine struct {}
 
 func (DockerExecutionEngine) Setup() (error) {
-	cl, err := docker.NewClientFromEnv()
-	if err != nil {
-		return err
+	if client == nil {
+		cl, err := docker.NewClientFromEnv()
+		if err != nil {
+			return err
+		}
+
+		client = cl
+		return nil
 	}
 
-	client = cl
 	return nil
 }
 
@@ -54,8 +59,8 @@ func (DockerExecutionEngine) CreateContainer(name string, image string, context 
 
 	var config = &docker.Config {
 		Image:           image,
-		Cmd: []string {"sleep", "600"},
 		Env:             environments,
+		Cmd: []string {"exit 1"},
 		NetworkDisabled: true,
 	}
 
@@ -83,4 +88,52 @@ func (DockerExecutionEngine) CreateContainer(name string, image string, context 
 	}
 
 	return containerId, nil
+}
+
+func (DockerExecutionEngine) ContainerFinished(containerId string) (bool, error) {
+	container, err := client.InspectContainer(containerId)
+	if err != nil {
+		logger.Log.Error(err.Error())
+		return false, err
+	}
+
+	return !container.State.Running, nil
+}
+
+func (DockerExecutionEngine) GetContainerLogs(containerId string) (string, error) {
+
+	var logsBytes = new(bytes.Buffer)
+	var logOptions = docker.LogsOptions{
+		Container: containerId,
+		OutputStream: logsBytes,
+
+		Stdout: true,
+		Stderr: true,
+
+		RawTerminal: true,
+	}
+
+	err := client.Logs(logOptions)
+	if err != nil {
+		logger.Log.Error(err.Error())
+		return "", err
+	}
+
+	return logsBytes.String(), nil
+}
+
+func (DockerExecutionEngine) RemoveContainer(containerId string) (error) {
+
+	var removeContainerOptions = docker.RemoveContainerOptions{
+		ID: containerId,
+		RemoveVolumes: true,
+	}
+
+	err := client.RemoveContainer(removeContainerOptions)
+	if err != nil {
+		logger.Log.Error(err.Error())
+		return err
+	}
+
+	return nil
 }

@@ -4,15 +4,19 @@ import (
 	"execution_engine"
 	"sync"
 	"time"
+	"path/filepath"
 )
 
 func CreateDefault() {
 	port = 8087
 	executionEngine = execution_engine.DockerExecutionEngine{}
-	stagingDir = "./hermes_stage"
-	outputDir = "./hermes_out"
+
+	stagingDir, _ = filepath.Abs("./stage")
+	outputDir, _ = filepath.Abs("./out")
+	logDir, _ = filepath.Abs("./log")
+
 	executionId = 1
-	timeout = 60 * time.Second
+	timeout = 10 * time.Second
 	pollInterval = 3 * time.Second
 }
 
@@ -30,6 +34,10 @@ func StagingDir() string {
 
 func OutputDir() string {
 	return outputDir
+}
+
+func LogDir() string {
+	return logDir
 }
 
 func ExecutionId() int {
@@ -53,6 +61,7 @@ var	executionEngine	execution_engine.ExecutionEngine
 
 var	stagingDir	string
 var	outputDir	string
+var	logDir		string
 
 var	executionId 		int
 var	executionIdLock	 	sync.Mutex
