@@ -9,4 +9,7 @@ type ExecutionEngine interface {
 	Setup() (error)
 	CheckIfImageExists(image string) (bool, error)
 	CreateContainer(name string, image string, context ExecutionContext) (string, error)
+	ContainerFinished(containerId string) (bool, error)
+	GetContainerLogs(containerId string) (string, error)
+	RemoveContainer(containerId string) (error)
 }

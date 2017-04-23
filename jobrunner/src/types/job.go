@@ -14,5 +14,5 @@ type Job struct {
 	Submission 	struct {
 		SubmissionFile 	File 	`json:"file"`
 	} `json:"submission"`
-	Log		[]string	`json:"log"`
+	Log		string	`json:"log"`
 }

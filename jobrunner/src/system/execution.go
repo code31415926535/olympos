@@ -9,12 +9,11 @@ import (
 	"os"
 	"time"
 	"execution_engine"
+	"io/ioutil"
+	"encoding/json"
 )
 
-const (
-	CodeTimeout 	channelUpdate = 1
-	CodePoll	channelUpdate = 2
-)
+type exitStatus string
 
 const (
 	ExitStatusNone exitStatus = "ExitStatusNone"
@@ -22,12 +21,20 @@ const (
 	ExitStatusCheckFail 	exitStatus = "ExitStatusCheckFail"
 	ExitStatusStageFail 	exitStatus = "ExitStatusStageFail"
 	ExitStatusCreationFail	exitStatus = "ExitStatusCreationFail"
+	ExitStatusPollFail	exitStatus = "ExitStatusPollFail"
+	ExitStatusTimeout	exitStatus = "ExitStatusTimeout"
+	ExitStatusGetResultFail exitStatus = "ExitStatusGetResultFail"
 
 	ExitStatusSuccess exitStatus = "ExitStatusSuccess"
 )
 
-type channelUpdate int
-type exitStatus string
+type pollResult	string
+
+const (
+	PollResultTimeout 	pollResult = "PollResultTimeout"
+	PollResultError		pollResult = "PollResultError"
+	PollResultDone		pollResult = "PollResultDone"
+)
 
 type execution struct {
 	job        	*types.Job
@@ -39,7 +46,7 @@ type execution struct {
 	timeout		time.Duration
 	pollInterval 	time.Duration
 	containerId	string
-	channel		chan channelUpdate
+	testResult	*types.TestResult
 }
 
 func (e *execution) String() string {
@@ -47,7 +54,7 @@ func (e *execution) String() string {
 		job:
 				uuid:		%s
 				environment: 	%s
-				testfiles: 	%s
+				test:		%s
 				submitted file: %s
 		stagingDir: 	%s
 		outputDir:	%s
@@ -55,17 +62,19 @@ func (e *execution) String() string {
 		exitStatus: 	%s
 		timeout:	%s
 		containerId:	%s
+		testResult:	%s
 	`,
 		e.job.Uuid,
-		e.job.TestInfo.Environment,
-		e.job.TestInfo.Files,
+		e.job.TestInfo.Environment.Image,
+		e.job.TestInfo.Name,
 		e.job.Submission.SubmissionFile,
 		e.stagingDir,
 		e.outputDir,
 		e.id,
 		e.exitStatus,
 		e.timeout,
-		e.containerId)
+		e.containerId,
+		e.testResult)
 }
 
 func (e *execution) main() {
@@ -95,16 +104,31 @@ func (e *execution) main() {
 	}
 	e.log.Debug("Started execution container!")
 
-	e.createCommunicationChannel()
-	e.setTimeout()
-	e.setPoll()
-	e.log.Debug("kill-timeout is: %s", e.timeout)
-	e.log.Debug("polling every [%s] second(s)", e.pollInterval)
+	e.log.Debugf("kill-timeout is: %s", e.timeout)
+	e.log.Debugf("polling every [%s] second(s)", e.pollInterval)
+	result := e.poll()
 
-	// TODO: continue with polling from here
-	time.Sleep(1000*time.Second)
+	switch result {
+	case PollResultError:
+		e.log.Error("failed to poll execution container!")
+		e.abort(ExitStatusPollFail)
+		return
+	case PollResultTimeout:
+		e.log.Error("execution timed out!")
+		e.abort(ExitStatusTimeout)
+		return
+	}
 
-	e.finnish()
+	e.log.Debug("Execution container finished!")
+
+	err = e.getResult()
+	if err != nil {
+		e.log.Errorf("failed to get result")
+		e.abort(ExitStatusGetResultFail)
+		return
+	}
+
+	e.succeed()
 }
 
 func (e *execution) config() {
@@ -164,26 +188,27 @@ func (e *execution) stage() error {
 }
 
 func (e *execution) create() error {
-	e.log.Debugf("Creating execution context...")
+	e.log.Debug("Creating execution context...")
 
-	sysEnv:= make(map[string]string)
-	for _, config := range e.job.TestInfo.Config {
-		sysEnv[config.Key] = config.Value
-	}
+	// TODO: make a way to add environment variables to the container
+	sysEnv := make(map[string]string)
 
 	ctx := execution_engine.ExecutionContext {
 		CoreMount: execution_engine.Volume {
 			HostPath: e.stagingDir,
-			DestinationPath: e.job.TestInfo.GetConfig("TEST_ROOT"),
+			DestinationPath: e.job.TestInfo.Environment.TestMount,
 		},
 		OutputMount: execution_engine.Volume {
 			HostPath: e.outputDir,
-			DestinationPath: e.job.TestInfo.GetConfig("OUT_ROOT"),
+			DestinationPath: e.job.TestInfo.Environment.OutMount,
 		},
 		SysEnv: sysEnv,
 	}
 
 	e.log.Debugf("Creating container ...")
+	e.log.Debugf("Container name: %s", e.id)
+	e.log.Debugf("Container image: %s", e.job.TestInfo.Environment.Image)
+	e.log.Debugf("Container context: %s", ctx)
 	containerId, err := cfg.ExecutionEngine().CreateContainer(e.id, e.job.TestInfo.Environment.Image, ctx)
 	if err != nil {
 		e.log.Error(err.Error())
@@ -194,26 +219,106 @@ func (e *execution) create() error {
 	return nil
 }
 
-func (e *execution) createCommunicationChannel() {
-	e.channel = make(chan channelUpdate)
+func (e *execution) poll() pollResult {
+	killTimeout := time.After(e.timeout)
+	pollTimeout := time.Tick(e.pollInterval)
+
+	for {
+		select {
+		case <- pollTimeout:
+			e.log.Debug("polling ...")
+			finished, err := cfg.ExecutionEngine().ContainerFinished(e.containerId)
+			if err != nil {
+				e.log.Error(err.Error())
+				return PollResultError
+			}
+
+			if finished {
+				return PollResultDone
+			}
+
+		case <- killTimeout:
+			return PollResultTimeout
+		}
+	}
 }
 
-func (e *execution) setTimeout() {
-	timer(e.channel, e.timeout, CodeTimeout)
-}
+func (e *execution) getResult() error {
+	e.log.Debug("Getting results ...")
 
-func (e *execution) setPoll() {
-	timer(e.channel, e.pollInterval, CodePoll)
+	resultDateFile := path.Join(e.outputDir, "result.json")
+	data, err := ioutil.ReadFile(resultDateFile)
+	if err != nil {
+		e.log.Error(err.Error())
+		return err
+	}
+
+	var testResult *types.TestResult
+	testResult = &types.TestResult{}
+
+	err = json.Unmarshal(data, testResult)
+	if err != nil {
+		e.log.Error(err.Error())
+		return err
+	}
+
+	e.testResult = testResult
+	return nil
 }
 
 func (e *execution) abort(status exitStatus) {
 	e.exitStatus = status
+	e.log.Debug("Execution aborted ...")
 	e.log.Debug(e)
-	// TODO: post-execution task called from here
+	e.finnish()
+}
+
+func (e *execution) succeed() {
+	e.exitStatus = ExitStatusSuccess
+	e.log.Debug(e)
+	e.finnish()
 }
 
 func (e *execution) finnish() {
-	e.exitStatus = ExitStatusSuccess
-	e.log.Debug(e)
-	// TODO: post-execution task called from here
+	e.cleanup()
+	e.respond()
+}
+
+func (e *execution) cleanup() {
+	e.log.Debug("Getting logs ...")
+	logs, err := cfg.ExecutionEngine().GetContainerLogs(e.containerId)
+	if err != nil {
+		e.log.Error(err.Error())
+		return
+	}
+	e.job.Log = logs
+
+	e.log.Debug("Creating file for logs ...")
+	logFilePath := path.Join(cfg.LogDir(), fmt.Sprintf("%s.log", e.id))
+	osLogFile, err := os.Create(logFilePath)
+	if err != nil {
+		e.log.Error(err.Error())
+		return
+	}
+	defer osLogFile.Close()
+
+	e.log.Debug("Writing logs to file ...")
+	_, err = osLogFile.WriteString(logs)
+	if err != nil {
+		e.log.Error(err.Error())
+		return
+	}
+
+	e.log.Debug("Removing container ...")
+	err = cfg.ExecutionEngine().RemoveContainer(e.containerId)
+	if err != nil {
+		e.log.Error(err.Error())
+		return
+	}
+
+	e.log.Debug("Cleanup complete!")
+}
+
+func (e *execution) respond() {
+	// TODO: Implement this
 }
