@@ -11,6 +11,14 @@ var envSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    test_mount: {
+        type: String,
+        required: true
+    },
+    out_mount: {
+        type: String,
+        required: true
+    },
     description: String,
 
 	created_at: Date,
@@ -34,7 +42,9 @@ envSchema.methods.toDTO = function() {
     return {
         "name": this["name"],
         "image": this["image"],
-        "description": this["description"]
+        "description": this["description"],
+        "out_mount": this["out_mount"],
+        "test_mount": this["test_mount"]
     };
 }
 

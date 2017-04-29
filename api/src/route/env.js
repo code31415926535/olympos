@@ -11,7 +11,40 @@ var Env = require(global.root + '/model/envDAO');
 
 router.use(bodyParser.json());
 
-// Index
+/**
+ * @swagger
+ * definition:
+ *   Env:
+ *     properties:
+ *       name:
+ *         type: string
+ *       image:
+ *         type: string
+ *       out_mount:
+ *         type: string
+ *       test_mount:
+ *         type: string
+ *       description:
+ *         type: string
+ */
+
+/**
+ * @swagger
+ * /env:
+ *   get:
+ *     tags:
+ *       - Env
+ *     description: Returns a list of all envs.
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: An array with all envs.
+ *         schema:
+ *           $ref: '#/definitions/Env'
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.get('/', function(req, res, next) {
     winston.info("Getting all 'env'-s...");
     Env.find({}, function(err, envs) {
@@ -29,7 +62,27 @@ router.get('/', function(req, res, next) {
     });
 });
 
-// TODO: Validate
+/**
+ * @swagger
+ * /env:
+ *   post:
+ *     tags:
+ *       - Env
+ *     description: Create a new env.
+ *     parameters:
+ *       - name: env
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/Env'
+ *     responses:
+ *       201:
+ *         description: Created
+ *       409:
+ *         description: Conflict. Object already exists.
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.post('/', function(req, res, next) {
     winston.info("Creating 'env'...");
     payload = req.body;
@@ -61,15 +114,25 @@ router.post('/', function(req, res, next) {
     });
 });
 
-router.put('/', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed));
-});
-
-router.delete('/', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed));
-});
-
-// Get and Delete by name
+/**
+ * @swagger
+ * /env/{name}:
+ *   get:
+ *     tags:
+ *       - Env
+ *     description: Get env by name.
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: Environment.
+ *         schema:
+ *           $ref: '#/definitions/Env'
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.get('/:envName', function(req, res, next) {
     winston.info("Getting 'env' by name...");
     var envName = req.params["envName"];
@@ -91,14 +154,21 @@ router.get('/:envName', function(req, res, next) {
     });
 });
 
-router.post('/:envName', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed));
-});
-
-router.put('/envName', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
-});
-
+/**
+ * @swagger
+ * /env/{name}:
+ *   delete:
+ *     tags:
+ *       - Env
+ *     description: Delete env by name.
+ *     responses:
+ *       200:
+ *         description: Environment deleted.
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.delete('/:envName', function(req, res, next) {
     winston.info("Deleteting 'env' by name...");
     var envName = req.params["envName"];

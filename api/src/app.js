@@ -6,6 +6,8 @@ var path = require('path');
 var winston = require('winston');
 var cors = require('cors');
 
+var swagger = require('./swagger.js');
+
 global.root = path.resolve(__dirname);
 
 var db = require(global.root + '/model/db');
@@ -15,6 +17,10 @@ require(global.root + '/config/log')();
 /* Setup the application */
 var setup = function (callback) {
     app.use(cors());
+
+    app.use(express.static("static"));
+    swagger.registerSwaggerJSDoc(app);
+
     app.use(master);
 
     callback();

@@ -15,6 +15,14 @@ var jobSchema = new mongoose.Schema({
         enum: ["Created", "Running", "Failed", "Completed"],
         default: "Created"
     },
+    result: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Result"
+    },
+    log: {
+        type: String,
+        default: ""
+    },
 
 	created_at: Date,
 	updated_at: Date
@@ -50,7 +58,8 @@ jobSchema.methods.toDTO = function() {
         "submission": {
             "id": this["submission_id"],
             "file": this["submission_file"].toDTO()
-        }
+        },
+        "log": this["log"]
     };
 };
 

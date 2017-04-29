@@ -29,18 +29,6 @@ router.get('/', function(req, res, next) {
     });
 });
 
-router.post('/', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed, "Job can only be created through a submission!"));
-});
-
-router.put('/', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed));
-});
-
-router.delete('/', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed));
-});
-
 // Get and Delete by name
 router.get('/:jobUuid', function(req, res, next) {
     winston.info("Getting 'job' by uuid...");
@@ -63,16 +51,48 @@ router.get('/:jobUuid', function(req, res, next) {
     });
 });
 
-router.post('/:jobUuid', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed));
+router.get('/:jobUuid/result', function(req, res, next) {
+    winston.info("Getting 'job' result by uuid...");
+    var jobUuid = req.params["jobUuid"];
+
+    Job.findOne({uuid: jobName}).populate("result").exec(function(err, job) {
+        if (err) {
+            winston.error(err);
+            next(new APICustomError(Status.InternalServerError));
+            return;
+        }
+
+        if (job == null) {
+            winston.error("Not found!");
+            next(new APICustomError(Status.NotFound));
+            return;
+        }
+
+        res.status(Status.OK).json(job.result.toDTO());
+    });
 });
 
-router.put('/jobUuid', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
-});
+router.post('/:jobUuid/result', function(req, res, next) {
+    winston.info("Getting 'job' result by uuid...");
+    var jobUuid = req.params["jobUuid"];
 
-router.delete('/:jobUuid', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed, "Job cannot be deleted!"));
+    Job.findOne({uuid: jobName}).populate("result").exec(function(err, job) {
+        if (err) {
+            winston.error(err);
+            next(new APICustomError(Status.InternalServerError));
+            return;
+        }
+
+        if (job == null) {
+            winston.error("Not found!");
+            next(new APICustomError(Status.NotFound));
+            return;
+        }
+
+        winston.debug(job);
+
+        res.status(Status.Created).json(job.result.toDTO());
+    });
 });
 
 module.exports = router;

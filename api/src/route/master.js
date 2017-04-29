@@ -15,9 +15,9 @@ router.use('/test', test);
 router.use('/env', env);
 router.use('/task', task);
 router.use('/job', job);
-router.use('/*', function(req, res) {
-    res.status(Status.OK).json({"code":"OK","message":"Wellcome to crimson rest-api server!"});
-});
+// router.use('/', function(req, res) {
+//     res.status(Status.OK).json({"code":"OK","message":"Wellcome to crimson rest-api server!"});
+// });
 
 /* Map errors */
 router.all('*', function(req, res, next) {

@@ -70,14 +70,6 @@ router.post('/', function(req, res, next) {
     })
 });
 
-router.put('/', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed));
-});
-
-router.delete('/', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed));
-});
-
 router.get('/:taskName', function(req, res, next) {
     winston.info("Getting 'task' by name...");
     var taskName = req.params["taskName"];
@@ -97,14 +89,6 @@ router.get('/:taskName', function(req, res, next) {
 
         res.status(Status.OK).json(task.toDTO());
     });
-});
-
-router.put('/:taskName', function(req, res, next) {
-    next(new APICustomError(Status.NotImplemented));
-});
-
-router.post('/:taskName', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed));
 });
 
 router.delete('/:taskName', function(req, res, next) {
@@ -162,10 +146,6 @@ router.get('/:taskName/submission', function(req, res, next) {
     });
 });
 
-router.put('/:taskName/submission', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed, "A submission cannot be modified!"));
-});
-
 router.post('/:taskName/submission', function(req, res, next) {
     winston.info("Creating 'task submission' by task name...");
     var taskName = req.params["taskName"];
@@ -217,10 +197,6 @@ router.post('/:taskName/submission', function(req, res, next) {
             });
         });
     });
-});
-
-router.delete('/:taskName/submission', function(req, res, next) {
-    next(new APICustomError(Status.MethodNotAllowed, "A submission cannot be deleted!"));
 });
 
 module.exports = router;
