@@ -40,7 +40,8 @@ router.use(bodyParser.json());
  *     responses:
  *       200:
  *         description: An array with all envs.
- *         schema:
+ *         type: array
+ *         items:
  *           $ref: '#/definitions/Env'
  *       500:
  *         description: Internal Server Error.
@@ -121,6 +122,11 @@ router.post('/', function(req, res, next) {
  *     tags:
  *       - Env
  *     description: Get env by name.
+ *     parameters:
+ *       - name: name
+ *         in: path
+ *         required: true
+ *         type: string
  *     produces:
  *       - application/json
  *     responses:
@@ -161,6 +167,11 @@ router.get('/:envName', function(req, res, next) {
  *     tags:
  *       - Env
  *     description: Delete env by name.
+ *     parameters:
+ *       - name: name
+ *         in: path
+ *         required: true
+ *         type: string
  *     responses:
  *       200:
  *         description: Environment deleted.

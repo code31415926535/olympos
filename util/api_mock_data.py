@@ -3,12 +3,29 @@ import requests
 API_SERVER = "http://localhost:8080"
 
 gaia_env = {
-            "name": "Gaia-standard",
-            "image": "olympos/gaia:latest",
-            "description": """Gaia-standard is the base test environment provided with olympos. It is capable of testing "python 2.7", "c", and "c++" programs.
+            "name": "Gaia-0.1",
+            "image": "olympos/gaia:0.1",
+            "description": """Gaia is the base test environment provided with olympos. It is capable of testing "python 2.7", "c", and "c++" programs.
 It has the following commands:
 1. Bash: Execute a bash "command" with an "arg" list.
 2. Assert File: Check if two files are equal.
+""",
+            "test_mount": "/mnt/test",
+            "out_mount": "/mnt/out"
+}
+
+gaia_env_new = {
+            "name": "Gaia-0.2",
+            "image": "olympos/gaia:0.2",
+            "description": """Gaia is the base test environment provided with olympos. It is capable of testing "python 2.7", "c", and "c++" programs.
+It has the following commands:
+1. Bash: Execute a bash "command" with an "arg" list.
+2. Assert File: Check if two files are equal.
+3. Gcc: Compile a c or cpp source file.
+4. BashIO: Execute a bash "command" with an "arg" list while using "input" as the input file and "output" as the output file.
+5. CompareFmt: Compare the contents of a file with the contents of another file based on a predefined format.
+6. Python: Execute a python script.
+7. PythonIO: Execute a python script while using "input" as the input file and "output" as the output file.
 """,
             "test_mount": "/mnt/test",
             "out_mount": "/mnt/out"
@@ -106,9 +123,114 @@ Note: You should try out different solutions to see how the system behaves.
     "test": hello_world_test
 }
 
+gcd_test_cpp = {
+    "name": "Greatest Common Divisor Test",
+    "description": """A test for a program that calculates the GCD of two numbers.
+The tested program needs to read two numbers from 'stdin' and print the "GCD" of the two to 'stdout'.
+
+The program needs to be written in c.
+"""
+}
+
+gcd_cpp_config_file = {
+        "name": "config.yaml",
+        "content": """run:
+  init:
+    - name: "gcc"
+      arg:
+        target: "./gcd.c"
+  test:
+    - for:
+        case: "relative-prime"
+      do:
+        execution:
+          name: "bashio"
+          arg:
+            command: "./a"
+            input: "./in/rel-prime.in"
+            output: "./gcd.out"
+        evaluation:
+          name: "compare_fmt"
+          arg:
+            actual: "./gcd.out"
+            expected: "./out/rel-prime.out"
+            format: "%d"
+    - for:
+        case: "have-divisors"
+      do:
+        execution:
+          name: "bashio"
+          arg:
+            command: "./a"
+            input: "./in/have-div.in"
+            output: "./gcd.out"
+        evaluation:
+          name: "compare_fmt"
+          arg:
+            actual: "./gcd.out"
+            expected: "./out/have-div.out"
+            format: "%d"
+    - for:
+        case: "one-divides-another"
+      do:
+        execution:
+          name: "bashio"
+          arg:
+            command: "./a"
+            input: "./in/oda.in"
+            output: "./gcd.out"
+        evaluation:
+          name: "compare_fmt"
+          arg:
+            actual: "./gcd.out"
+            expected: "./out/oda.out"
+            format: "%d"
+"""
+    }
+
+gcd_cpp_rel_prime_in = {
+    "name": "/in/rel-prime.in",
+    "content": """3 5"""
+}
+
+gcd_cpp_rel_prime_out = {
+    "name": "/out/rel-prime.out",
+    "content": """1"""
+}
+
+gcd_cpp_have_div_in = {
+    "name": "/in/have-div.in",
+    "content": """60 45"""
+}
+
+gcd_cpp_have_div_out = {
+    "name": "/out/have-div.out",
+    "content": """15"""
+}
+
+gcd_cpp_oda_in = {
+    "name": "/in/oda.in",
+    "content": """60 120"""
+}
+
+gcd_cpp_oda_out = {
+    "name": "/out/oda.out",
+    "content": """60"""
+}
+
+gcd_task = {
+    "name": "Greatest Common Divisor",
+    "description": """The task is to write a "c" program that reads 2 numbers and calculates their greatest common divisor.
+""",
+    "test": gcd_test_cpp
+}
+
 if __name__ == "__main__":
     print "Filling up with mock data"
     response = requests.post(url=API_SERVER + "/env", json=gaia_env)
+    print "Status: {}".format(response.status_code)
+
+    response = requests.post(url=API_SERVER + "/env", json=gaia_env_new)
     print "Status: {}".format(response.status_code)
 
     response = requests.post(url=API_SERVER + "/test", json=hello_world_test)

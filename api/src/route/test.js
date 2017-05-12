@@ -12,6 +12,43 @@ var Test = require(global.root + '/model/testDAO');
 
 router.use(bodyParser.json());
 
+/**
+ * @swagger
+ * definition:
+ *   Test:
+ *     properties:
+ *       name:
+ *         type: string
+ *       env:
+ *         $ref: '#/definitions/Env'
+ *       description:
+ *         type: string
+ *   File:
+ *     properties:
+ *       name:
+ *         type: string
+ *       content:
+ *         type: string
+ */
+
+/**
+ * @swagger
+ * /test:
+ *   get:
+ *     tags:
+ *       - Test
+ *     description: Returns a list of all tests.
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: An array with all tests.
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/Test'
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.get('/', function(req, res, next) {
     winston.info("Getting all 'test'-s...");
     Test.find({}, function(err, tests) {
@@ -30,6 +67,27 @@ router.get('/', function(req, res, next) {
     });
 });
 
+/**
+ * @swagger
+ * /test:
+ *   post:
+ *     tags:
+ *       - Test
+ *     description: Create a new test.
+ *     parameters:
+ *       - name: test
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/Test'
+ *     responses:
+ *       201:
+ *         description: Created
+ *       409:
+ *         description: Conflict. Object already exists.
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.post('/', function(req, res, next) {
     winston.info("Creating 'test'...");
     payload = req.body;
@@ -71,6 +129,30 @@ router.post('/', function(req, res, next) {
     })
 });
 
+/**
+ * @swagger
+ * /test/{name}:
+ *   get:
+ *     tags:
+ *       - Test
+ *     description: Get test by name.
+ *     parameters:
+ *       - name: name
+ *         in: path
+ *         required: true
+ *         type: string
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: Test.
+ *         schema:
+ *           $ref: '#/definitions/Test'
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.get('/:testName', function(req, res, next) {
     winston.info("Getting 'test' by name...");
     var testName = req.params["testName"];
@@ -92,6 +174,26 @@ router.get('/:testName', function(req, res, next) {
     });
 });
 
+/**
+ * @swagger
+ * /test/{name}:
+ *   delete:
+ *     tags:
+ *       - Test
+ *     description: Delete test by name.
+ *     parameters:
+ *       - name: name
+ *         in: path
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: Test deleted.
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.delete('/:testName', function(req, res, next) {
     winston.info("Deleteting 'test' by name...");
     var testName = req.params["testName"];
@@ -122,6 +224,31 @@ router.delete('/:testName', function(req, res, next) {
 
 });
 
+/**
+ * @swagger
+ * /test/{name}/files:
+ *   get:
+ *     tags:
+ *       - Test
+ *     description: Returns a list of all files attached to a test.
+ *     parameters:
+ *       - name: name
+ *         in: path
+ *         required: true
+ *         type: string
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: An array with all files attached to the test.
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/File'
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.get('/:testName/files', function(req, res, next) {
     winston.info("Getting 'all test files' by test name...");
     var testName = req.params["testName"];
@@ -147,6 +274,33 @@ router.get('/:testName/files', function(req, res, next) {
     });
 });
 
+/**
+ * @swagger
+ * /test/{name}/files:
+ *   post:
+ *     tags:
+ *       - Test
+ *     description: Attach a file to the test.
+ *     parameters:
+ *       - name: name
+ *         in: path
+ *         required: true
+ *         type: string
+ *       - name: file
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/File'
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       201:
+ *         description: Created.
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.post('/:testName/files', function(req, res, next) {
     winston.info("Creating 'test file' by test name...");
     var testName = req.params["testName"];

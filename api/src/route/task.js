@@ -13,6 +13,37 @@ var Task = require(global.root + '/model/taskDAO');
 
 router.use(bodyParser.json());
 
+/**
+ * @swagger
+ * definition:
+ *   Task:
+ *     properties:
+ *       name:
+ *         type: string
+ *       test:
+ *         $ref: '#/definitions/Test'
+ *       description:
+ *         type: string
+ */
+
+ /**
+  * @swagger
+  * /task:
+  *   get:
+  *     tags:
+  *       - Task
+  *     description: Returns a list of all tasks.
+  *     produces:
+  *       - application/json
+  *     responses:
+  *       200:
+  *         description: An array with all tasks.
+  *         type: array
+  *         items:
+  *           $ref: '#/definitions/Task'
+  *       500:
+  *         description: Internal Server Error.
+  */
 router.get('/', function(req, res, next) {
     winston.info("Getting all 'task'-s...");
     Task.find({}, function(err, tasks) {
@@ -30,6 +61,27 @@ router.get('/', function(req, res, next) {
     });
 });
 
+/**
+ * @swagger
+ * /task:
+ *   post:
+ *     tags:
+ *       - Task
+ *     description: Create a new task.
+ *     parameters:
+ *       - name: task
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/Task'
+ *     responses:
+ *       201:
+ *         description: Created
+ *       409:
+ *         description: Conflict. Object already exists.
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.post('/', function(req, res, next) {
     winston.info("Creating 'task'...");
     payload = req.body;
@@ -70,6 +122,30 @@ router.post('/', function(req, res, next) {
     })
 });
 
+/**
+ * @swagger
+ * /task/{name}:
+ *   get:
+ *     tags:
+ *       - Task
+ *     description: Get task by name.
+ *     parameters:
+ *       - name: name
+ *         in: path
+ *         required: true
+ *         type: string
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: Task.
+ *         schema:
+ *           $ref: '#/definitions/Task'
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.get('/:taskName', function(req, res, next) {
     winston.info("Getting 'task' by name...");
     var taskName = req.params["taskName"];
@@ -91,6 +167,26 @@ router.get('/:taskName', function(req, res, next) {
     });
 });
 
+/**
+ * @swagger
+ * /task/{name}:
+ *   delete:
+ *     tags:
+ *       - Task
+ *     description: Delete task by name.
+ *     parameters:
+ *       - name: name
+ *         in: path
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: Task deleted.
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
 router.delete('/:taskName', function(req, res, next) {
     winston.info("Deleteting 'task' by name...");
     var taskName = req.params["taskName"];

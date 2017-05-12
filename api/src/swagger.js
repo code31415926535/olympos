@@ -1,3 +1,4 @@
+/* swagger code from: https://github.com/Surnet/swagger-jsdoc/tree/master/example */
 var swaggerJSDoc = require('swagger-jsdoc');
 
 /* Configure swagger */
@@ -13,7 +14,7 @@ var swaggerDefinition = {
 
 var options = {
     swaggerDefinition: swaggerDefinition,
-    apis: ['./route/env.js'],
+    apis: ['./route/env.js', './route/test.js', './route/task.js'],
 };
 
 var swaggerSpec = swaggerJSDoc(options);
