@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var Status = require(global.root + '/config/status');
 var APICustomError = require(global.root + '/error/APICustomError');
 var Job = require(global.root + '/model/jobDAO');
+var Result = require(global.root + '/model/resultDAO');
 
 // TODO: Permission handling.
 
@@ -29,7 +30,7 @@ router.get('/', function(req, res, next) {
     });
 });
 
-// Get and Delete by name
+// Get by name
 router.get('/:jobUuid', function(req, res, next) {
     winston.info("Getting 'job' by uuid...");
     var jobUuid = req.params["jobUuid"];
@@ -54,8 +55,9 @@ router.get('/:jobUuid', function(req, res, next) {
 router.get('/:jobUuid/result', function(req, res, next) {
     winston.info("Getting 'job' result by uuid...");
     var jobUuid = req.params["jobUuid"];
+    var payload = req.body;
 
-    Job.findOne({uuid: jobName}).populate("result").exec(function(err, job) {
+    Job.findOne({uuid: jobUuid}).populate("result").exec(function(err, job) {
         if (err) {
             winston.error(err);
             next(new APICustomError(Status.InternalServerError));
@@ -67,16 +69,20 @@ router.get('/:jobUuid/result', function(req, res, next) {
             next(new APICustomError(Status.NotFound));
             return;
         }
+
+        console.log(payload);
 
         res.status(Status.OK).json(job.result.toDTO());
     });
 });
 
+// TODO: Only job runner should have permission here
 router.post('/:jobUuid/result', function(req, res, next) {
-    winston.info("Getting 'job' result by uuid...");
+    winston.info("Creating 'job' result by uuid...");
     var jobUuid = req.params["jobUuid"];
+    var payload = req.body;
 
-    Job.findOne({uuid: jobName}).populate("result").exec(function(err, job) {
+    Job.findOne({uuid: jobUuid}, function(err, job) {
         if (err) {
             winston.error(err);
             next(new APICustomError(Status.InternalServerError));
@@ -89,9 +95,29 @@ router.post('/:jobUuid/result', function(req, res, next) {
             return;
         }
 
-        winston.debug(job);
+        winston.debug("Creating result ....");
+        var result = new Result(payload);
+        result.save(function (err) {
+            if (err) {
+                winston.error(err);
+                next(new APICustomError(Status.InternalServerError));
+                return;
+            }
 
-        res.status(Status.Created).json(job.result.toDTO());
+            winston.debug("Updating job ...");
+            job.result = result;
+            job.save(function (err) {
+                winston.debug("Job saved!");
+                if (err) {
+                    winston.error(err);
+                    next(new APICustomError(Status.InternalServerError));
+                    return;
+                }
+
+                res.status(Status.Created).send();
+            });
+        });
+
     });
 });
 

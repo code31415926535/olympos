@@ -1,5 +1,4 @@
 var mongoose = require('mongoose');
-var uuid = require('uuid/v4');
 
 var jobSchema = new mongoose.Schema({
     uuid: {
@@ -12,8 +11,13 @@ var jobSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["Created", "Running", "Failed", "Completed"],
-        default: "Created"
+        enum: ["Running", "Failed", "Completed"],
+        default: "Running"
+    },
+    test: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Test",
+        required: true
     },
     result: {
         type: mongoose.Schema.Types.ObjectId,
@@ -31,7 +35,6 @@ var jobSchema = new mongoose.Schema({
 jobSchema.pre('init', function (next) {
     this.created_at = new Date();
     this.submission_date = new Date();
-    this.uuid = uuid();
 
     next();
 });
@@ -55,6 +58,7 @@ jobSchema.methods.toDTO = function() {
     return {
         "uuid": this["uuid"],
         "status": this["status"],
+        "test": this["test"].toDTO(),
         "submission": {
             "id": this["submission_id"],
             "file": this["submission_file"].toDTO()
@@ -69,5 +73,17 @@ jobSchema.methods.toSubmissionDTO = function() {
         "file": this["submission_file"].toDTO()
     }
 };
+
+jobSchema.methods.toJobrunnerDTO = function () {
+    return {
+        "uuid": this["uuid"],
+        "test": this["test"].toJobrunnerDTO(),
+        "submission": {
+            "file": this["submission_file"].toDTO()
+        },
+        "status": this["status"],
+        "log": this["log"]
+    }
+}
 
 module.exports = mongoose.model('Job', jobSchema);

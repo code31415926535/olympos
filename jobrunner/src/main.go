@@ -11,7 +11,7 @@ func main() {
 	logger.InitLogger()
 
 	logger.Log.Info("Using default config map")
-	cfg.CreateDefault()
+	cfg.CreateFromEnv()
 
 	logger.Log.Info("Setting up execution engine...")
 	cfg.ExecutionEngine().Setup()

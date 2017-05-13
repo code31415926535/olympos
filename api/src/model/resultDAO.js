@@ -21,22 +21,18 @@ var resultSchema = new mongoose.Schema({
     cases: [{
         name: {
             type: String,
-            required: true
         },
         status: {
             type: String,
-            required: true
         }
     }],
 
     result: {
         status_code: {
             type: Number,
-            required: true
         },
         message: {
             type: String,
-            required: true
         }
     },
 

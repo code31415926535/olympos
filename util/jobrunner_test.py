@@ -4,7 +4,7 @@ import time
 
 hello_world_env_json = {
             "name": "Gaia",
-            "image": "olympos/gaia:latest",
+            "image": "olympos/gaia:0.1",
             "description": """Gaia is the base test environment provided with olympos.
 It is capable of testing "python 2.7", "c", and "c++" programs.
 """,

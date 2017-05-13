@@ -50,6 +50,15 @@ testSchema.methods.toDTO = function() {
     }
 }
 
+testSchema.methods.toJobrunnerDTO = function () {
+    return {
+        "name": this["name"],
+        "env": this["env"].toDTO(),
+        "description": this["description"],
+        "files": this["files"]
+    }
+}
+
 testSchema.statics.fromDTO = function(dto, callback) {
     var Test = this.model('Test');
     Test.findOne({name: dto["name"]}, function(err, test) {

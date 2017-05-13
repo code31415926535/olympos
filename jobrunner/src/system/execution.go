@@ -11,6 +11,8 @@ import (
 	"execution_engine"
 	"io/ioutil"
 	"encoding/json"
+	"net/http"
+	"bytes"
 )
 
 type exitStatus string
@@ -139,6 +141,7 @@ func (e *execution) config() {
 	e.exitStatus = ExitStatusNone
 	e.timeout = cfg.Timeout()
 	e.pollInterval = cfg.PollInterval()
+	e.testResult = nil
 }
 
 func (e *execution) check() bool {
@@ -284,12 +287,14 @@ func (e *execution) finnish() {
 	e.respond()
 }
 
-func (e *execution) cleanup() {
+func (e *execution) cleanup() bool {
+	ok := true
+
 	e.log.Debug("Getting logs ...")
 	logs, err := cfg.ExecutionEngine().GetContainerLogs(e.containerId)
 	if err != nil {
 		e.log.Error(err.Error())
-		return
+		ok = false
 	}
 	e.job.Log = logs
 
@@ -298,7 +303,7 @@ func (e *execution) cleanup() {
 	osLogFile, err := os.Create(logFilePath)
 	if err != nil {
 		e.log.Error(err.Error())
-		return
+		ok = false
 	}
 	defer osLogFile.Close()
 
@@ -306,19 +311,55 @@ func (e *execution) cleanup() {
 	_, err = osLogFile.WriteString(logs)
 	if err != nil {
 		e.log.Error(err.Error())
-		return
+		ok = false
 	}
 
 	e.log.Debug("Removing container ...")
 	err = cfg.ExecutionEngine().RemoveContainer(e.containerId)
 	if err != nil {
 		e.log.Error(err.Error())
-		return
+		ok = false
 	}
 
-	e.log.Debug("Cleanup complete!")
+	if ok {
+		e.log.Debug("Cleanup complete!")
+	}
+
+	return ok
 }
 
 func (e *execution) respond() {
-	// TODO: Implement this
+	if e.testResult == nil {
+		e.log.Warning("No result ... creating empty result ...")
+		e.testResult = &types.TestResult{}
+	}
+
+	e.log.Debug("Sending response ...")
+
+	jsonData, err := json.Marshal(e.testResult)
+	if err != nil {
+		e.log.Error(err)
+		return
+	}
+
+	e.log.Debug(cfg.AresReturnUrl(e.job.Uuid))
+	e.log.Debug(string(jsonData))
+	req, err := http.NewRequest(http.MethodPost, cfg.AresReturnUrl(e.job.Uuid), bytes.NewBuffer(jsonData))
+	if err != nil {
+		e.log.Error(err)
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		e.log.Error(err)
+		return
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		e.log.Error(res.StatusCode)
+	}
 }

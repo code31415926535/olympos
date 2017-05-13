@@ -2,9 +2,12 @@ var express = require('express');
 var router = express.Router();
 var winston = require('winston');
 var bodyParser = require('body-parser');
+var uuid = require('uuid/v4');
 
 var Status = require(global.root + '/config/status');
 var APICustomError = require(global.root + '/error/APICustomError');
+
+var jc = require(global.root + '/clients/jobrunner_client');
 
 var Test = require(global.root + '/model/testDAO');
 var Job = require(global.root + '/model/jobDAO');
@@ -261,34 +264,50 @@ router.post('/:taskName/submission', function(req, res, next) {
             return;
         }
 
-        var fl = payload["file"];
-        File.create(fl, function(err, file) {
-            if (err) {
-                winston.error(err);
-                next(new APICustomError(Status.InternalServerError));
-                return;
-            }
+        Task.populate(task, {path: 'test.files', model: 'File'}, function (err, task) {
 
-            var jb = {
-                "submission_file": file,
-                "submission_id": task.jobs.length
-            };
-            Job.create(jb, function (err, job) {
+            var fl = payload["file"];
+            File.create(fl, function(err, file) {
                 if (err) {
                     winston.error(err);
                     next(new APICustomError(Status.InternalServerError));
                     return;
                 }
 
-                task.jobs.push(job);
-                task.save(function(err) {
+                var jb = {
+                    "submission_file": file,
+                    "submission_id": task.jobs.length
+                };
+                var job = new Job();
+                job["submission_file"] = file;
+                job["submission_id"] = task.jobs.length;
+                job["test"] = task.test;
+                job["uuid"] = uuid();
+                job.save(function (err) {
+                // Job.create(jb, function (err, job) {
                     if (err) {
                         winston.error(err);
                         next(new APICustomError(Status.InternalServerError));
                         return;
                     }
-                    // TODO: Start the job here
-                    res.status(Status.Created).send();
+
+                    task.jobs.push(job);
+                    task.save(function(err) {
+                        if (err) {
+                            winston.error(err);
+                            next(new APICustomError(Status.InternalServerError));
+                            return;
+                        }
+                        jc.runJob(job.toJobrunnerDTO(), function(err) {
+                            if (err) {
+                                winston.error(err);
+                                next(new APICustomError(Status.InternalServerError));
+                                return;
+                            }
+
+                            res.status(Status.Created).send();
+                        });
+                    });
                 });
             });
         });
