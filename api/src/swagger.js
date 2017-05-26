@@ -14,7 +14,7 @@ var swaggerDefinition = {
 
 var options = {
     swaggerDefinition: swaggerDefinition,
-    apis: ['./route/env.js', './route/test.js', './route/task.js'],
+    apis: ['./route/auth.js', './route/middleware/dataValidator.js', './route/user.js'],
 };
 
 var swaggerSpec = swaggerJSDoc(options);

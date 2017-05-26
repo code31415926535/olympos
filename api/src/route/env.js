@@ -93,7 +93,7 @@ router.post('/', function(req, res, next) {
     Env.findOne(filter, function(err, env) {
         if (err) {
             winston.error(err);
-            next(new ApiCustomError(Status.InternalServerError));
+            next(new APICustomError(Status.InternalServerError));
             return;
         }
 

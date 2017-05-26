@@ -13,6 +13,12 @@ module.exports = function APICustomError(code, description) {
         case Status.NotFound:
             this.message = "Not Found!";
             break;
+        case Status.Unauthorized:
+            this.message = "Unauthorized";
+            break;
+        case Status.Forbidden:
+            this.message = "Forbidden";
+            break;
         case Status.MethodNotAllowed:
             this.message = "Method Not Allowed";
             break;

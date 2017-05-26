@@ -6,11 +6,12 @@ var path = require('path');
 var winston = require('winston');
 var cors = require('cors');
 
-var swagger = require('./swagger.js');
 
 global.root = path.resolve(__dirname);
 
+var swagger = require(global.root + '/swagger');
 var db = require(global.root + '/model/db');
+var seedUsers = require(global.root + '/config/seedUsers');
 var master = require(global.root + '/route/master');
 require(global.root + '/config/log')();
 
@@ -50,6 +51,11 @@ async.series([
     db.connect,
     function (callback) {
         winston.info("Connected to database.");
+        callback();
+    },
+    seedUsers.seed,
+    function (callback) {
+        winston.info("Created seeded users");
         callback();
     },
     setup,

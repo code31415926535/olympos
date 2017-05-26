@@ -5,10 +5,16 @@ export LOG_LEVEL=debug
 
 export ATHENA_HOSTNAME=localhost
 export ATHENA_PORT=5432
-export ATHENA_NAME=test
+export ATHENA_NAME=olympos
 
 export HERMES_PORT=8087
 export HERMES_HOSTNAME=localhost
+
+export ADMIN_USERNAME=admin
+export ADMIN_PASSWORD=admin
+
+export JOBRUNNER_USERNAME=jobrunner
+export JOBRUNNER_PASSWORD=jobrunner
 
 nodejs app
 
@@ -20,3 +26,7 @@ unset ATHENA_PORT
 unset ATHENA_NAME
 unset HERMES_PORT
 unset HERMES_HOSTNAME
+unset ADMIN_USERNAME
+unset ADMIN_PASSWORD
+unset JOBRUNNER_USERNAME
+unset JOBRUNNER_PASSWORD
