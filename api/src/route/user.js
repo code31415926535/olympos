@@ -28,7 +28,7 @@ router.use(bodyParser.json());
  *       - User
  *     description: Returns a list of all users.
  *     parameters:
- *       - name: "x-access-token"
+ *       - name: x-access-token
  *         in: header
  *         required: true
  *         type: string
@@ -129,7 +129,7 @@ router.post('/', validateUserPrivate, function(req, res, next) {
  *       - User
  *     description: Get user by name.
  *     parameters:
- *       - name: "x-access-token"
+ *       - name: x-access-token
  *         in: header
  *         required: true
  *         type: string
@@ -145,7 +145,7 @@ router.post('/', validateUserPrivate, function(req, res, next) {
  *         schema:
  *           $ref: '#/definitions/UserPublic'
  *       401:
- *         description: Unauthorized
+ *         description: Unauthorized.
  *       404:
  *         description: Not Found.
  *       500:
@@ -180,7 +180,7 @@ router.get('/:userName', auth(GET_USER_PERM), function(req, res, next) {
  *       - User
  *     description: Modify a user.
  *     parameters:
- *       - name: "x-access-token"
+ *       - name: x-access-token
  *         in: header
  *         required: true
  *         type: string
@@ -240,7 +240,7 @@ router.put('/:userName/permission', validatePermission, auth(MODIFY_USER_PERM), 
  *       - User
  *     description: Delete a user.
  *     parameters:
- *       - name: "x-access-token"
+ *       - name: x-access-token
  *         in: header
  *         required: true
  *         type: string
@@ -275,7 +275,7 @@ router.delete('/:userName', auth(MODIFY_USER_PERM), function(req, res, next) {
             return;
         };
 
-        User.remove({name: userName}, function(err) {
+        User.remove({username: userName}, function(err) {
             if (err) {
                 winston.error(err);
                 next(new APICustomError(Status.InternalServerError));

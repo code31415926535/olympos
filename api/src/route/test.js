@@ -10,26 +10,16 @@ var Env = require(global.root + '/model/envDAO');
 var File = require(global.root + '/model/fileDAO');
 var Test = require(global.root + '/model/testDAO');
 
-router.use(bodyParser.json());
+var auth = require(global.root + '/route/middleware/auth');
 
-/**
- * @swagger
- * definition:
- *   Test:
- *     properties:
- *       name:
- *         type: string
- *       env:
- *         $ref: '#/definitions/Env'
- *       description:
- *         type: string
- *   File:
- *     properties:
- *       name:
- *         type: string
- *       content:
- *         type: string
- */
+var dataValidator = require(global.root + '/route/middleware/dataValidator');
+var validateTest = dataValidator.validateTest;
+var validateFile = dataValidator.validateFile;
+
+const TEST_PERM = 11;
+
+router.use(bodyParser.urlencoded({extended: false}));
+router.use(bodyParser.json());
 
 /**
  * @swagger
@@ -38,6 +28,11 @@ router.use(bodyParser.json());
  *     tags:
  *       - Test
  *     description: Returns a list of all tests.
+ *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *     produces:
  *       - application/json
  *     responses:
@@ -46,13 +41,14 @@ router.use(bodyParser.json());
  *         type: array
  *         items:
  *           $ref: '#/definitions/Test'
+ *       401:
+ *         description: Unauthorized.
  *       500:
  *         description: Internal Server Error.
  */
-router.get('/', function(req, res, next) {
+router.get('/', auth(TEST_PERM), function(req, res, next) {
     winston.info("Getting all 'test'-s...");
     Test.find({}, function(err, tests) {
-        winston.info("GETTING");
         if (err) {
             winston.error(err);
             next(new APICustomError(Status.InternalServerError));
@@ -75,6 +71,10 @@ router.get('/', function(req, res, next) {
  *       - Test
  *     description: Create a new test.
  *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *       - name: test
  *         in: body
  *         required: true
@@ -82,13 +82,17 @@ router.get('/', function(req, res, next) {
  *           $ref: '#/definitions/Test'
  *     responses:
  *       201:
- *         description: Created
+ *         description: Created.
+ *       400:
+ *         description: Bad Request.
+ *       401:
+ *         description: Unauthorized.
  *       409:
  *         description: Conflict. Object already exists.
  *       500:
  *         description: Internal Server Error.
  */
-router.post('/', function(req, res, next) {
+router.post('/', validateTest, auth(TEST_PERM), function(req, res, next) {
     winston.info("Creating 'test'...");
     payload = req.body;
     winston.debug(payload);
@@ -137,6 +141,10 @@ router.post('/', function(req, res, next) {
  *       - Test
  *     description: Get test by name.
  *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *       - name: name
  *         in: path
  *         required: true
@@ -148,12 +156,14 @@ router.post('/', function(req, res, next) {
  *         description: Test.
  *         schema:
  *           $ref: '#/definitions/Test'
+ *       401:
+ *         description: Unauthorized.
  *       404:
  *         description: Not Found.
  *       500:
  *         description: Internal Server Error.
  */
-router.get('/:testName', function(req, res, next) {
+router.get('/:testName', auth(TEST_PERM), function(req, res, next) {
     winston.info("Getting 'test' by name...");
     var testName = req.params["testName"];
 
@@ -182,6 +192,10 @@ router.get('/:testName', function(req, res, next) {
  *       - Test
  *     description: Delete test by name.
  *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *       - name: name
  *         in: path
  *         required: true
@@ -189,12 +203,14 @@ router.get('/:testName', function(req, res, next) {
  *     responses:
  *       200:
  *         description: Test deleted.
+ *       401:
+ *         description: Unauthorized.
  *       404:
  *         description: Not Found.
  *       500:
  *         description: Internal Server Error.
  */
-router.delete('/:testName', function(req, res, next) {
+router.delete('/:testName', auth(TEST_PERM), function(req, res, next) {
     winston.info("Deleteting 'test' by name...");
     var testName = req.params["testName"];
 
@@ -232,6 +248,10 @@ router.delete('/:testName', function(req, res, next) {
  *       - Test
  *     description: Returns a list of all files attached to a test.
  *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *       - name: name
  *         in: path
  *         required: true
@@ -244,12 +264,14 @@ router.delete('/:testName', function(req, res, next) {
  *         type: array
  *         items:
  *           $ref: '#/definitions/File'
+ *       401:
+ *         description: Uauthorized.
  *       404:
  *         description: Not Found.
  *       500:
  *         description: Internal Server Error.
  */
-router.get('/:testName/files', function(req, res, next) {
+router.get('/:testName/files', auth(TEST_PERM), function(req, res, next) {
     winston.info("Getting 'all test files' by test name...");
     var testName = req.params["testName"];
 
@@ -282,6 +304,10 @@ router.get('/:testName/files', function(req, res, next) {
  *       - Test
  *     description: Attach a file to the test.
  *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *       - name: name
  *         in: path
  *         required: true
@@ -296,18 +322,19 @@ router.get('/:testName/files', function(req, res, next) {
  *     responses:
  *       201:
  *         description: Created.
+ *       400:
+ *         description: Bad Request.
+ *       401:
+ *         description: Unauthorized.
  *       404:
  *         description: Not Found.
  *       500:
  *         description: Internal Server Error.
  */
-router.post('/:testName/files', function(req, res, next) {
+router.post('/:testName/files', validateFile, auth(TEST_PERM), function(req, res, next) {
     winston.info("Creating 'test file' by test name...");
     var testName = req.params["testName"];
-    winston.debug("Test name is:");
-    winston.debug(testName);
     var payload = req.body;
-    winston.debug(payload);
 
     Test.findOne({name: testName}, function(err, test) {
         if (err) {

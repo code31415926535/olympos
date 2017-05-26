@@ -7,26 +7,14 @@ var Status = require(global.root + '/config/status');
 var APICustomError = require(global.root + '/error/APICustomError');
 var Env = require(global.root + '/model/envDAO');
 
-// TODO: Permission handling.
+var auth = require(global.root + '/route/middleware/auth');
+var validateEnv = require(global.root + '/route/middleware/dataValidator').validateEnv;
 
+const GET_ENV_PERM = 15;
+const MODIFY_ENV_PERM = 25;
+
+router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
-
-/**
- * @swagger
- * definition:
- *   Env:
- *     properties:
- *       name:
- *         type: string
- *       image:
- *         type: string
- *       out_mount:
- *         type: string
- *       test_mount:
- *         type: string
- *       description:
- *         type: string
- */
 
 /**
  * @swagger
@@ -35,6 +23,11 @@ router.use(bodyParser.json());
  *     tags:
  *       - Env
  *     description: Returns a list of all envs.
+ *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *     produces:
  *       - application/json
  *     responses:
@@ -43,10 +36,12 @@ router.use(bodyParser.json());
  *         type: array
  *         items:
  *           $ref: '#/definitions/Env'
+ *       401:
+ *         description: Unauthorized.
  *       500:
  *         description: Internal Server Error.
  */
-router.get('/', function(req, res, next) {
+router.get('/', auth(GET_ENV_PERM), function(req, res, next) {
     winston.info("Getting all 'env'-s...");
     Env.find({}, function(err, envs) {
         if (err) {
@@ -71,6 +66,10 @@ router.get('/', function(req, res, next) {
  *       - Env
  *     description: Create a new env.
  *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *       - name: env
  *         in: body
  *         required: true
@@ -78,13 +77,17 @@ router.get('/', function(req, res, next) {
  *           $ref: '#/definitions/Env'
  *     responses:
  *       201:
- *         description: Created
+ *         description: Created.
+ *       400:
+ *         description: Bad Request.
+ *       401:
+ *         description: Unauthorized.
  *       409:
  *         description: Conflict. Object already exists.
  *       500:
  *         description: Internal Server Error.
  */
-router.post('/', function(req, res, next) {
+router.post('/', validateEnv, auth(MODIFY_ENV_PERM), function(req, res, next) {
     winston.info("Creating 'env'...");
     payload = req.body;
     winston.debug(payload);
@@ -123,6 +126,10 @@ router.post('/', function(req, res, next) {
  *       - Env
  *     description: Get env by name.
  *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *       - name: name
  *         in: path
  *         required: true
@@ -134,12 +141,14 @@ router.post('/', function(req, res, next) {
  *         description: Environment.
  *         schema:
  *           $ref: '#/definitions/Env'
+ *       401:
+ *         description: Unauthorized.
  *       404:
  *         description: Not Found.
  *       500:
  *         description: Internal Server Error.
  */
-router.get('/:envName', function(req, res, next) {
+router.get('/:envName', auth(GET_ENV_PERM), function(req, res, next) {
     winston.info("Getting 'env' by name...");
     var envName = req.params["envName"];
 
@@ -168,6 +177,10 @@ router.get('/:envName', function(req, res, next) {
  *       - Env
  *     description: Delete env by name.
  *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *       - name: name
  *         in: path
  *         required: true
@@ -175,12 +188,14 @@ router.get('/:envName', function(req, res, next) {
  *     responses:
  *       200:
  *         description: Environment deleted.
+ *       401:
+ *         description: Unauthorized.
  *       404:
  *         description: Not Found.
  *       500:
  *         description: Internal Server Error.
  */
-router.delete('/:envName', function(req, res, next) {
+router.delete('/:envName', auth(MODIFY_ENV_PERM), function(req, res, next) {
     winston.info("Deleteting 'env' by name...");
     var envName = req.params["envName"];
 

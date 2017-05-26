@@ -18,8 +18,8 @@ var job = require(global.root + '/route/job');
 router.use('/auth', auth);
 router.use('/user', user);
 
-// router.use('/env', env);
-// router.use('/test', test);
+router.use('/env', env);
+router.use('/test', test);
 // router.use('/task', task);
 // router.use('/job', job);
 // router.use('/', function(req, res) {
