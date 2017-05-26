@@ -6,6 +6,7 @@ var hermesHost = process.env.HERMES_HOSTNAME
 var hermesPort = process.env.HERMES_PORT
 var hermesUri = "http://" + hermesHost + ":" + hermesPort;
 
+// TODO: if something fails, mark job as failed.
 module.exports.runJob = function(job, callback) {
     var options = {
         uri: hermesUri,

@@ -8,12 +8,41 @@ var APICustomError = require(global.root + '/error/APICustomError');
 var Job = require(global.root + '/model/jobDAO');
 var Result = require(global.root + '/model/resultDAO');
 
-// TODO: Permission handling.
+var auth = require(global.root + '/route/middleware/auth');
+var permissions = require(global.root + '/model/permissions');
 
+router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
 
-// Index
-router.get('/', function(req, res, next) {
+const GET_JOBS_PERM = 19;
+const GET_RESULT_PERM = 0;
+
+/**
+ * @swagger
+ * /job:
+ *   get:
+ *     tags:
+ *       - Job
+ *     description: Returns a list of all jobs.
+ *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: An array with all the jobs.
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/Job'
+ *       401:
+ *         description: Unauthorized.
+ *       500:
+ *         description: Internal Server Error.
+ */
+router.get('/', auth(GET_JOBS_PERM), function(req, res, next) {
     winston.info("Getting all 'job'-s...");
     Job.find({}, function(err, jobs) {
         if (err) {
@@ -30,8 +59,37 @@ router.get('/', function(req, res, next) {
     });
 });
 
-// Get by name
-router.get('/:jobUuid', function(req, res, next) {
+/**
+ * @swagger
+ * /job/{uuid}:
+ *   get:
+ *     tags:
+ *       - Job
+ *     description: Returns a job based on uuid.
+ *     parameters:
+ *       - name: uuid
+ *         in: path
+ *         required: true
+ *         type: string
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: All information regarding a job.
+ *         schema:
+ *           $ref: '#/definitions/Job'
+ *       401:
+ *         description: Unauthorized.
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
+router.get('/:jobUuid', auth(GET_JOBS_PERM), function(req, res, next) {
     winston.info("Getting 'job' by uuid...");
     var jobUuid = req.params["jobUuid"];
 
@@ -52,7 +110,37 @@ router.get('/:jobUuid', function(req, res, next) {
     });
 });
 
-router.get('/:jobUuid/result', function(req, res, next) {
+/**
+ * @swagger
+ * /job/{uuid}/result:
+ *   get:
+ *     tags:
+ *       - Job
+ *     description: Returns a the result of the given job.
+ *     parameters:
+ *       - name: uuid
+ *         in: path
+ *         required: true
+ *         type: string
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: The job result.
+ *         schema:
+ *           $ref: '#/definitions/Result'
+ *       401:
+ *         description: Unauthorized.
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
+router.get('/:jobUuid/result', auth(GET_RESULT_PERM), function(req, res, next) {
     winston.info("Getting 'job' result by uuid...");
     var jobUuid = req.params["jobUuid"];
     var payload = req.body;
@@ -76,8 +164,35 @@ router.get('/:jobUuid/result', function(req, res, next) {
     });
 });
 
-// TODO: Only job runner should have permission here
-router.post('/:jobUuid/result', function(req, res, next) {
+/**
+ * @swagger
+ * /job/{uuid}/result:
+ *   post:
+ *     tags:
+ *       - Job
+ *     description: Post job result. Can only be used by jobrunner.
+ *     parameters:
+ *       - name: uuid
+ *         in: path
+ *         required: true
+ *         type: string
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       201:
+ *         description: Job result submitted.
+ *       401:
+ *         description: Unauthorized.
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
+router.post('/:jobUuid/result', auth(permissions.special.JOBRUNNER), function(req, res, next) {
     winston.info("Creating 'job' result by uuid...");
     var jobUuid = req.params["jobUuid"];
     var payload = req.body;

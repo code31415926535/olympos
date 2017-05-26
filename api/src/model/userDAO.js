@@ -58,4 +58,21 @@ userSchema.methods.toDTO = function () {
     }
 }
 
+userSchema.statics.fromDTO = function(dto, callback) {
+    var User = this.model('User');
+    User.findOne({username: dto["username"]}, function(err, user) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+
+        if (user == null) {
+            callback("Error", null);
+            return;
+        };
+
+        callback(null, user);
+    });
+}
+
 module.exports = mongoose.model('User', userSchema);

@@ -20,11 +20,8 @@ router.use('/user', user);
 
 router.use('/env', env);
 router.use('/test', test);
-// router.use('/task', task);
-// router.use('/job', job);
-// router.use('/', function(req, res) {
-//     res.status(Status.OK).json({"code":"OK","message":"Wellcome to crimson rest-api server!"});
-// });
+router.use('/task', task);
+router.use('/job', job);
 
 /* Map errors */
 router.all('*', function(req, res, next) {

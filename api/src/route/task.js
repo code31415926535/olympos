@@ -14,40 +14,45 @@ var Job = require(global.root + '/model/jobDAO');
 var File = require(global.root + '/model/fileDAO');
 var Task = require(global.root + '/model/taskDAO');
 
+var auth = require(global.root + '/route/middleware/auth');
+
+var dataValidator = require(global.root + '/route/middleware/dataValidator');
+var validateTask = dataValidator.validateTask;
+var validateFile = dataValidator.validateFile;
+
+const GET_TASK_PERM = 0;
+const MODIFY_TASK_PERM = 11;
+const SUBMIT_PERM = 9;
+
+router.use(bodyParser.urlencoded({extended: false}));
 router.use(bodyParser.json());
 
 /**
  * @swagger
- * definition:
- *   Task:
- *     properties:
- *       name:
+ * /task:
+ *   get:
+ *     tags:
+ *       - Task
+ *     description: Returns a list of all tasks.
+ *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
  *         type: string
- *       test:
- *         $ref: '#/definitions/Test'
- *       description:
- *         type: string
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: An array with all tasks.
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/Task'
+ *       401:
+ *         description: Unauthorized.
+ *       500:
+ *         description: Internal Server Error.
  */
-
- /**
-  * @swagger
-  * /task:
-  *   get:
-  *     tags:
-  *       - Task
-  *     description: Returns a list of all tasks.
-  *     produces:
-  *       - application/json
-  *     responses:
-  *       200:
-  *         description: An array with all tasks.
-  *         type: array
-  *         items:
-  *           $ref: '#/definitions/Task'
-  *       500:
-  *         description: Internal Server Error.
-  */
-router.get('/', function(req, res, next) {
+router.get('/', auth(GET_TASK_PERM), function(req, res, next) {
     winston.info("Getting all 'task'-s...");
     Task.find({}, function(err, tasks) {
         if (err) {
@@ -72,6 +77,10 @@ router.get('/', function(req, res, next) {
  *       - Task
  *     description: Create a new task.
  *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *       - name: task
  *         in: body
  *         required: true
@@ -79,13 +88,17 @@ router.get('/', function(req, res, next) {
  *           $ref: '#/definitions/Task'
  *     responses:
  *       201:
- *         description: Created
+ *         description: Created.
+ *       400:
+ *         description: Bad Request.
+ *       401:
+ *         description: Unauthorized.
  *       409:
  *         description: Conflict. Object already exists.
  *       500:
  *         description: Internal Server Error.
  */
-router.post('/', function(req, res, next) {
+router.post('/', validateTask, auth(MODIFY_TASK_PERM), function(req, res, next) {
     winston.info("Creating 'task'...");
     payload = req.body;
 
@@ -133,6 +146,10 @@ router.post('/', function(req, res, next) {
  *       - Task
  *     description: Get task by name.
  *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *       - name: name
  *         in: path
  *         required: true
@@ -144,12 +161,14 @@ router.post('/', function(req, res, next) {
  *         description: Task.
  *         schema:
  *           $ref: '#/definitions/Task'
+ *       401:
+ *         description: Unauthorized.
  *       404:
  *         description: Not Found.
  *       500:
  *         description: Internal Server Error.
  */
-router.get('/:taskName', function(req, res, next) {
+router.get('/:taskName', auth(GET_TASK_PERM), function(req, res, next) {
     winston.info("Getting 'task' by name...");
     var taskName = req.params["taskName"];
 
@@ -178,6 +197,10 @@ router.get('/:taskName', function(req, res, next) {
  *       - Task
  *     description: Delete task by name.
  *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
  *       - name: name
  *         in: path
  *         required: true
@@ -185,12 +208,14 @@ router.get('/:taskName', function(req, res, next) {
  *     responses:
  *       200:
  *         description: Task deleted.
+ *       401:
+ *         description: Unauthorized.
  *       404:
  *         description: Not Found.
  *       500:
  *         description: Internal Server Error.
  */
-router.delete('/:taskName', function(req, res, next) {
+router.delete('/:taskName', auth(MODIFY_TASK_PERM), function(req, res, next) {
     winston.info("Deleteting 'task' by name...");
     var taskName = req.params["taskName"];
 
@@ -219,12 +244,40 @@ router.delete('/:taskName', function(req, res, next) {
     });
 });
 
-/* Submission endpoint */
-router.get('/:taskName/submission', function(req, res, next) {
+/**
+ * @swagger
+ * /task/{name}/submission:
+ *   get:
+ *     tags:
+ *       - Task
+ *     description: Delete task by name.
+ *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: name
+ *         in: path
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: An array with all the submissions for this task.
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/Submission'
+ *       401:
+ *         description: Unauthorized.
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
+router.get('/:taskName/submission', auth(SUBMIT_PERM), function(req, res, next) {
     winston.info("Getting 'task submissions' by task name...");
     var taskName = req.params["taskName"];
 
-    Task.findOne({name: taskName}).populate("jobs").exec(function(err, task){
+    Task.find({name: taskName}).populate("jobs").exec(function(err, task){
         if (err) {
             winston.error(err);
             next(new APICustomError(Status.InternalServerError));
@@ -245,11 +298,44 @@ router.get('/:taskName/submission', function(req, res, next) {
     });
 });
 
-router.post('/:taskName/submission', function(req, res, next) {
+/**
+ * @swagger
+ * /task/{name}/submission:
+ *   post:
+ *     tags:
+ *       - Task
+ *     description: Submit a solution.
+ *     parameters:
+ *       - name: x-access-token
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: name
+ *         in: path
+ *         required: true
+ *         type: string
+ *       - name: file
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/File'
+ *     responses:
+ *       201:
+ *         description: Submission successfull.
+ *       400:
+ *         description: Bad Request.
+ *       401:
+ *         description: Unauthorized.
+ *       404:
+ *         description: Not Found.
+ *       500:
+ *         description: Internal Server Error.
+ */
+router.post('/:taskName/submission', validateFile, auth(SUBMIT_PERM), function(req, res, next) {
     winston.info("Creating 'task submission' by task name...");
     var taskName = req.params["taskName"];
     var payload = req.body;
-    winston.debug(payload);
+    var usr = req.user;
 
     Task.findOne({name: taskName}, function(err, task) {
         if (err) {
@@ -265,47 +351,47 @@ router.post('/:taskName/submission', function(req, res, next) {
         }
 
         Task.populate(task, {path: 'test.files', model: 'File'}, function (err, task) {
-
-            var fl = payload["file"];
-            File.create(fl, function(err, file) {
-                if (err) {
-                    winston.error(err);
-                    next(new APICustomError(Status.InternalServerError));
-                    return;
-                }
-
-                var jb = {
-                    "submission_file": file,
-                    "submission_id": task.jobs.length
-                };
-                var job = new Job();
-                job["submission_file"] = file;
-                job["submission_id"] = task.jobs.length;
-                job["test"] = task.test;
-                job["uuid"] = uuid();
-                job.save(function (err) {
-                // Job.create(jb, function (err, job) {
+            User.fromDTO(usr, function (err, user) {
+                File.create(payload, function(err, file) {
                     if (err) {
                         winston.error(err);
                         next(new APICustomError(Status.InternalServerError));
                         return;
                     }
 
-                    task.jobs.push(job);
-                    task.save(function(err) {
+                    var jb = {
+                        "submission_file": file,
+                        "submission_id": task.jobs.length,
+                        "submission_user": user
+                    };
+                    var job = new Job();
+                    job["submission_file"] = file;
+                    job["submission_id"] = task.jobs.length;
+                    job["test"] = task.test;
+                    job["uuid"] = uuid();
+                    job.save(function (err) {
                         if (err) {
                             winston.error(err);
                             next(new APICustomError(Status.InternalServerError));
                             return;
                         }
-                        jc.runJob(job.toJobrunnerDTO(), function(err) {
+
+                        task.jobs.push(job);
+                        task.save(function(err) {
                             if (err) {
                                 winston.error(err);
                                 next(new APICustomError(Status.InternalServerError));
                                 return;
                             }
+                            jc.runJob(job.toJobrunnerDTO(), function(err) {
+                                if (err) {
+                                    winston.error(err);
+                                    next(new APICustomError(Status.InternalServerError));
+                                    return;
+                                }
 
-                            res.status(Status.Created).send();
+                                res.status(Status.Created).send();
+                            });
                         });
                     });
                 });

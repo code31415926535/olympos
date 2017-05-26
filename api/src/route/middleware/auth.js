@@ -35,12 +35,24 @@ module.exports = function(permissionLevel) {
                     return;
                 }
 
+                if (permissionLevel == permissions.special.JOBRUNNER) {
+                    if (decoded.data.permission == permissionLevel) {
+                        winston.debug("Recieved from jobrunner ...");
+                        next();
+                        return;
+                    }
+
+                    next(new APICustomError(Status.Unauthorized));
+                    return;
+                };
+
                 if (getPermissionLevel(decoded.data.permission) < permissionLevel) {
                     winston.debug("Enpoint requires higher permission level ...");
                     next(new APICustomError(Status.Unauthorized));
                     return;
                 }
 
+                req.user = decoded.data;
                 next();
                 return;
             });

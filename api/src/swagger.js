@@ -18,7 +18,9 @@ var options = {
         './route/middleware/dataValidator.js',
         './route/user.js',
         './route/env.js',
-        './route/test.js'],
+        './route/test.js',
+        './route/task.js',
+        './route/job.js'],
 };
 
 var swaggerSpec = swaggerJSDoc(options);

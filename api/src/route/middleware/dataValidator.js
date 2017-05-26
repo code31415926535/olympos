@@ -200,11 +200,93 @@ var validateFile = function(req, res, next) {
     next(new APICustomError(Status.BadRequest));
 }
 
+/**
+ * @swagger
+ * definition:
+ *   Task:
+ *     properties:
+ *       name:
+ *         type: string
+ *       test:
+ *         $ref: '#/definitions/Test'
+ *       description:
+ *         type: string
+ */
+var validateTask = function(req, res, next) {
+    var payload = req.body;
+
+    next();
+}
+
+/**
+ * @swagger
+ * definition:
+ *   Submission:
+ *     properties:
+ *       id:
+ *         type: number
+ *       file:
+ *         $ref: '#/definitions/File'
+ *       by:
+ *         $ref: '#/definitions/UserPublic'
+ */
+
+/* Outbound type, no validation required */
+
+/**
+ * @swagger
+ * definition:
+ *   Job:
+ *     properties:
+ *       uuid:
+ *         type: string
+ *       status:
+ *         type: string
+ *       test:
+ *         $ref: '#/definitions/Test'
+ *       submission:
+ *         $ref: '#/definitions/Submission'
+ *       log:
+ *         type: string
+ */
+
+/* Outbound type, no validation required */
+
+/**
+ * @swagger
+ * definition:
+ *   Result:
+ *     properties:
+ *       total:
+ *         type: number
+ *       passed:
+ *         type: number
+ *       failed:
+ *         type: number
+ *       skipped:
+ *         type: number
+ *       cases:
+ *         type: array
+ *         items:
+ *           name:
+ *             type: String
+ *           status:
+ *             type: String
+ *       result:
+ *         status_code:
+ *           type: number
+ *         message:
+ *           type: String
+ */
+
+/* Outbound type, no validation required */
+
 module.exports = {
     validateCredential: validateCredential,
     validateUserPrivate: validateUserPrivate,
     validatePermission: validatePermission,
     validateEnv: validateEnv,
     validateTest: validateTest,
-    validateFile: validateFile
+    validateFile: validateFile,
+    validateTask: validateTask
 }

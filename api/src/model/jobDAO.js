@@ -9,6 +9,10 @@ var jobSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "File"
     },
+    submission_user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
     status: {
         type: String,
         enum: ["Running", "Failed", "Completed"],
@@ -61,8 +65,10 @@ jobSchema.methods.toDTO = function() {
         "test": this["test"].toDTO(),
         "submission": {
             "id": this["submission_id"],
-            "file": this["submission_file"].toDTO()
+            "file": this["submission_file"].toDTO(),
+            "user": this["submission_user"].toDTO()
         },
+        "result": this["result"].toDTO(),
         "log": this["log"]
     };
 };
@@ -70,7 +76,8 @@ jobSchema.methods.toDTO = function() {
 jobSchema.methods.toSubmissionDTO = function() {
     return {
         "id": this["submission_id"],
-        "file": this["submission_file"].toDTO()
+        "file": this["submission_file"].toDTO(),
+        "by": this["submission_user"]["username"]
     }
 };
 
