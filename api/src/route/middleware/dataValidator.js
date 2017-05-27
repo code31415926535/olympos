@@ -215,7 +215,14 @@ var validateFile = function(req, res, next) {
 var validateTask = function(req, res, next) {
     var payload = req.body;
 
-    next();
+    if (validateStringAndNotNull(payload["name"]) &&
+        validateStringAndNotNull(payload["description"]) &&
+        validateObjectAndNotNull(payload["test"])) {
+            next();
+            return;
+        }
+
+    next(new APICustomError(Status.BadRequest));
 }
 
 /**
