@@ -49,16 +49,45 @@ jobSchema.pre('save', function(next) {
 	next();
 });
 
+var populateData = function(next) {
+    this.populate('submission_file');
+    this.populate('submission_user');
+    this.populate('test');
+    this.populate('result');
+    next();
+}
+
 var populateFile = function(next) {
     this.populate('submission_file');
     next();
 }
 
-jobSchema.pre('find', populateFile);
-jobSchema.pre('findOne', populateFile);
+var populateUser = function(next) {
+    this.populate('submission_user');
+    next();
+}
+
+var populateTest = function(next) {
+    this.populate('test');
+    next();
+}
+
+var populateResult = function(next) {
+    this.populate('result');
+    next();
+}
+
+jobSchema.pre('find', populateData);
+jobSchema.pre('findOne', populateData);
 
 // Utility functions
 jobSchema.methods.toDTO = function() {
+    var result;
+    if (this["result"] == undefined) {
+        result = {};
+    } else {
+        result = this["result"].toDTO();
+    }
     return {
         "uuid": this["uuid"],
         "status": this["status"],
@@ -68,7 +97,7 @@ jobSchema.methods.toDTO = function() {
             "file": this["submission_file"].toDTO(),
             "user": this["submission_user"].toDTO()
         },
-        "result": this["result"].toDTO(),
+        "result": result,
         "log": this["log"]
     };
 };

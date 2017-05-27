@@ -12,7 +12,8 @@ var taskSchema = new mongoose.Schema({
     },
     jobs: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Job"
+        ref: "Job",
+        default: []
     }],
     description: String,
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $1 = "up" ]; then
-	docker run --hostname athena -p 5432:27017 --name athena -d olympos/athena:latest
+	docker run --hostname athena -p 5432:27017 --name athena -e ATHENA_PORT=27017 -d olympos/athena:latest
 fi
 
 if [ $1 = "down" ]; then

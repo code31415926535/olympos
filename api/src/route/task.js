@@ -13,6 +13,7 @@ var Test = require(global.root + '/model/testDAO');
 var Job = require(global.root + '/model/jobDAO');
 var File = require(global.root + '/model/fileDAO');
 var Task = require(global.root + '/model/taskDAO');
+var User = require(global.root + '/model/userDAO');
 
 var auth = require(global.root + '/route/middleware/auth');
 
@@ -277,7 +278,7 @@ router.get('/:taskName/submission', auth(SUBMIT_PERM), function(req, res, next) 
     winston.info("Getting 'task submissions' by task name...");
     var taskName = req.params["taskName"];
 
-    Task.find({name: taskName}).populate("jobs").exec(function(err, task){
+    Task.findOne({name: taskName}).populate("jobs").exec(function(err, task) {
         if (err) {
             winston.error(err);
             next(new APICustomError(Status.InternalServerError));
@@ -359,14 +360,10 @@ router.post('/:taskName/submission', validateFile, auth(SUBMIT_PERM), function(r
                         return;
                     }
 
-                    var jb = {
-                        "submission_file": file,
-                        "submission_id": task.jobs.length,
-                        "submission_user": user
-                    };
                     var job = new Job();
                     job["submission_file"] = file;
                     job["submission_id"] = task.jobs.length;
+                    job["submission_user"] = user;
                     job["test"] = task.test;
                     job["uuid"] = uuid();
                     job.save(function (err) {

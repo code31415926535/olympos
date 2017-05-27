@@ -45,6 +45,7 @@ const GET_RESULT_PERM = 0;
 router.get('/', auth(GET_JOBS_PERM), function(req, res, next) {
     winston.info("Getting all 'job'-s...");
     Job.find({}, function(err, jobs) {
+        console.log(jobs);
         if (err) {
             winston.error(err);
             next(new APICustomError(Status.InternalServerError));
@@ -93,7 +94,7 @@ router.get('/:jobUuid', auth(GET_JOBS_PERM), function(req, res, next) {
     winston.info("Getting 'job' by uuid...");
     var jobUuid = req.params["jobUuid"];
 
-    Job.findOne({uuid: jobName}, function(err, job) {
+    Job.findOne({uuid: jobUuid}, function(err, job) {
         if (err) {
             winston.error(err);
             next(new APICustomError(Status.InternalServerError));
@@ -145,7 +146,7 @@ router.get('/:jobUuid/result', auth(GET_RESULT_PERM), function(req, res, next) {
     var jobUuid = req.params["jobUuid"];
     var payload = req.body;
 
-    Job.findOne({uuid: jobUuid}).populate("result").exec(function(err, job) {
+    Job.findOne({uuid: jobUuid}, function(err, job) {
         if (err) {
             winston.error(err);
             next(new APICustomError(Status.InternalServerError));
@@ -158,7 +159,10 @@ router.get('/:jobUuid/result', auth(GET_RESULT_PERM), function(req, res, next) {
             return;
         }
 
-        console.log(payload);
+        if (job.result == undefined) {
+            res.status(Status.OK).json({});
+            return;
+        }
 
         res.status(Status.OK).json(job.result.toDTO());
     });

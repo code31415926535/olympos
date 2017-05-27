@@ -1,10 +1,6 @@
-import json
 import requests
 import time
 import sys
-
-API_SERVER = "http://localhost:8080"
-
 
 class User:
     def __init__(self):
@@ -247,6 +243,49 @@ class Task:
         else:
             return response.status_code, response.json()
 
+
+class Job:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def list_jobs(token):
+        response = requests.get(API_SERVER + "/job",
+                                headers={"x-access-token": token})
+
+        if response.status_code != 200:
+            return response.status_code, None
+        else:
+            return response.status_code, response.json()
+
+    @staticmethod
+    def get_job_by_uuid(uuid, token):
+        response = requests.get(API_SERVER + "/job/{}".format(uuid),
+                                headers={"x-access-token": token})
+
+        if response.status_code != 200:
+            return response.status_code, None
+        else:
+            return response.status_code, response.json()
+
+    @staticmethod
+    def get_job_result_by_uuid(uuid, token):
+        response = requests.get(API_SERVER + "/job/{}/result".format(uuid),
+                                headers={"x-access-token": token})
+
+        if response.status_code != 200:
+            return response.status_code, None
+        else:
+            return response.status_code, response.json()
+
+    @staticmethod
+    def post_job_result_by_uuid(uuid, token):
+        job_result = {}
+
+        response = requests.post(API_SERVER + "/job/{}/result".format(uuid), json=job_result,
+                            headers={"x-access-token": token})
+
+        return response.status_code
 
 def expect(actual, expected, message):
     if actual != expected:
@@ -584,9 +623,23 @@ def test_task():
     expect(status, 200, "get task should return 200 even when user has lowest permissions")
     time.sleep(0.1)
 
+    # get task submissions
+    status, _ = Task.list_task_submissions("testTask", no_perm_token)
+    expect(status, 401, "get task submissions should return unauthorized if user lacks permissions")
+    time.sleep(0.1)
+
+    status, _ = Task.list_task_submissions("someTask", token)
+    expect(status, 404, "get task submissions should return not found if task doesn't exist")
+    time.sleep(0.1)
+
+    status, tasks = Task.list_task_submissions("testTask", token)
+    expect(status, 200, "get task submissions should return 200 if everything is fine")
+    expect(len(tasks), 0, "get task submissions should return empty array")
+    time.sleep(0.1)
+
     # delete task
     status = Task.delete_task_by_name("testTask", "something")
-    expect(status, 401, "delete task returns unauthorized if token is invalid")
+    expect(status, 401, "delete task should return unauthorized if token is invalid")
     time.sleep(0.1)
 
     status = Task.delete_task_by_name("someTask", token)
@@ -828,6 +881,70 @@ Note: You should try out different solutions to see how the system behaves.
     "test": tests[1]["test"]
 }]
 
+submissions = [{
+    "username": "hercules",
+    "password": "password",
+    "file": {
+            "name": "hello.c",
+            "content": """#include <stdio.h>
+
+int main() {
+    FILE *f;
+    FILE *g;
+asd
+    char msg[100];
+    f = fopen("hello.in", "r");
+    if (f == NULL) {
+        exit(1);
+    }
+
+    fgets(msg, 101, f);
+    fclose(f);
+
+    g = fopen("hello.out", "w");
+    if (g == NULL) {
+        exit(1);
+    }
+
+    fprintf(g, "%s", msg);
+    fclose(g);
+}
+"""
+    },
+    "toTask": "Hello World"
+}, {
+    "username": "hercules",
+    "password": "password",
+    "file": {
+            "name": "hello.c",
+            "content": """#include <stdio.h>
+
+int main() {
+    FILE *f;
+    FILE *g;
+
+    char msg[100];
+    f = fopen("hello.in", "r");
+    if (f == NULL) {
+        exit(1);
+    }
+
+    fgets(msg, 101, f);
+    fclose(f);
+
+    g = fopen("hello.out", "w");
+    if (g == NULL) {
+        exit(1);
+    }
+
+    fprintf(g, "%s", msg);
+    fclose(g);
+}
+"""
+    },
+    "toTask": "Hello World"
+}]
+
 # MOCK DATA END
 
 
@@ -867,13 +984,81 @@ def create_mock_data(token):
         expect(status, 201, "creating task {}".format(task["name"]))
         time.sleep(0.1)
 
+
+def mock_submissions():
+    for submission in submissions:
+        status, auth_token_json = User.auth(submission["username"],
+                                            submission["password"])
+        expect(status, 200, "authenticate user: {}".format(submission["username"]))
+        token = auth_token_json["value"]
+        time.sleep(0.1)
+
+        status = Task.create_task_submission(submission["toTask"],
+                                             submission["file"]["name"],
+                                             submission["file"]["content"],
+                                             token)
+        expect(status, 201, "submit solution to task {}".format(submission["toTask"]))
+        time.sleep(1)
+
+
+def test_job():
+    _, token_json = User.auth("phil", "password")
+    token = token_json["value"]
+    time.sleep(0.1)
+    _, no_perm_token_json = User.auth("hercules", "password")
+    no_perm_token = no_perm_token_json["value"]
+    time.sleep(0.1)
+
+    # get all jobs
+    status, _ = Job.list_jobs(no_perm_token)
+    expect(status, 401, "get all jobs should return unauthorized if user lacks permissions")
+    time.sleep(0.1)
+
+    status, jobs = Job.list_jobs(token)
+    expect(status, 200, "get all jobs should return 200 when everything is fine")
+    expect(len(jobs), len(submissions), "get all jobs should return all jobs")
+    uuid = jobs[0]["uuid"]
+    time.sleep(0.1)
+
+    # get job by uuid
+    status, _ = Job.get_job_by_uuid(uuid, no_perm_token)
+    expect(status, 401, "get job by uuid should return unauthorized if user lacks permissions")
+    time.sleep(0.1)
+
+    status, _ = Job.get_job_by_uuid("some-id", token)
+    expect(status, 404, "get job by uuid should return not found when job doesn't exist")
+    time.sleep(0.1)
+
+    status, _ = Job.get_job_by_uuid(uuid, token)
+    expect(status, 200, "get job by uuid should return 200 when everything is fine")
+    time.sleep(0.1)
+
+    # post job result by uuid
+    status = Job.post_job_result_by_uuid(uuid, token)
+    expect(status, 401, "post job result should return unauthorized for every user expect jobrunner")
+    time.sleep(0.1)
+
+    # get job result by uuid
+    status, _ = Job.get_job_result_by_uuid(uuid, "asdf")
+    expect(status, 401, "get job result by uuid should return unauthorized when token is not valid")
+    time.sleep(0.1)
+
+    status, _ = Job.get_job_result_by_uuid("some-id", no_perm_token)
+    expect(status, 404, "get job result by uuid should return not found if job doesn't exist")
+    time.sleep(0.1)
+
+    status, _ = Job.get_job_result_by_uuid(uuid, no_perm_token)
+    expect(status, 200, "get job result should return 200 even if user has low permissions")
+    time.sleep(0.1)
+
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        print "Usage python data.py <test-api | add-mock-data | test-run> <admin_user> <admin_password>"
+        print "Usage python data.py <test-api | add-mock-data | test-run> <admin_user> <admin_password> <api_endpoint>"
         exit(1)
 
     admin_user = sys.argv[2]
     admin_password = sys.argv[3]
+    API_SERVER = sys.argv[4]
 
     if sys.argv[1] == "test-api":
         print "Testing user endpoints ..."
@@ -917,6 +1102,13 @@ if __name__ == "__main__":
         exit(0)
 
     if sys.argv[1] == "test-run":
-        pass
+        print "Submitting mock solutions ..."
+        mock_submissions()
+        print "Waiting for jobs to run ..."
+        time.sleep(5)
+        # test_job()
+        print "All tests passed :)"
 
-    print "Usage python data.py <test-api | add-mock-data | test-run>"
+        exit(0)
+
+    print "Usage python data.py <test-api | add-mock-data | test-run> <admin_user> <admin_password> <api_endpoint>"
