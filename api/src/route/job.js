@@ -45,7 +45,6 @@ const GET_RESULT_PERM = 0;
 router.get('/', auth(GET_JOBS_PERM), function(req, res, next) {
     winston.info("Getting all 'job'-s...");
     Job.find({}, function(err, jobs) {
-        console.log(jobs);
         if (err) {
             winston.error(err);
             next(new APICustomError(Status.InternalServerError));
@@ -225,6 +224,7 @@ router.post('/:jobUuid/result', auth(permissions.special.JOBRUNNER), function(re
 
             winston.debug("Updating job ...");
             job.result = result;
+            job.status = "Completed";
             job.save(function (err) {
                 winston.debug("Job saved!");
                 if (err) {

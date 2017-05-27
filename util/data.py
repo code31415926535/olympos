@@ -1106,8 +1106,8 @@ if __name__ == "__main__":
         mock_submissions()
         print "Waiting for jobs to run ..."
         time.sleep(5)
-        # test_job()
-        print "All tests passed :)"
+        test_job()
+        print "DONE!"
 
         exit(0)
 

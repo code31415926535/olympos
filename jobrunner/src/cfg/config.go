@@ -20,8 +20,11 @@ const (
 	HERMES_OUTPUT_DIR_ENV = "HERMES_OUTPUT_DIR"
 	HERMES_LOG_DIR_ENV = "HERMES_LOG_DIR"
 
-	ARES_HOST_ENV = "ARES_HOST"
+	ARES_HOSTNAME_ENV = "ARES_HOSTNAME"
 	ARES_PORT_ENV = "ARES_PORT"
+
+	JOBRUNNER_USERNAME_ENV = "JOBRUNNER_USERNAME"
+	JOBRUNNER_PASSWORD_ENV = "JOBRUNNER_PASSWORD"
 )
 
 func CreateDefault() {
@@ -38,6 +41,9 @@ func CreateDefault() {
 
 	aresHost = "localhost"
 	aresPort = 8080
+
+	jobrunnerUsername = "jobrunner"
+	jobrunnerPassword = "jobrunner"
 }
 
 func CreateFromEnv() {
@@ -55,8 +61,11 @@ func CreateFromEnv() {
 	timeout = time.Duration(timeoutSecs) * time.Second
 	pollInterval = time.Duration(pollIntervalSecs) * time.Second
 
-	aresHost = os.Getenv(ARES_HOST_ENV)
+	aresHost = os.Getenv(ARES_HOSTNAME_ENV)
 	aresPort, _ = strconv.Atoi(os.Getenv(ARES_PORT_ENV))
+
+	jobrunnerUsername = os.Getenv(JOBRUNNER_USERNAME_ENV)
+	jobrunnerPassword = os.Getenv(JOBRUNNER_PASSWORD_ENV)
 }
 
 func Port() int {
@@ -99,6 +108,18 @@ func AresReturnUrl(jobUuid string) string {
 	return fmt.Sprintf("http://%s:%d/job/%s/result", aresHost, aresPort, jobUuid)
 }
 
+func AresAuthUrl() string {
+	return fmt.Sprintf("http://%s:%d/auth", aresHost, aresPort)
+}
+
+func JobrunnerUsername() string {
+	return jobrunnerUsername
+}
+
+func JobrunnerPassword() string {
+	return jobrunnerPassword
+}
+
 var 	port 		int
 var	executionEngine	execution_engine.ExecutionEngine
 
@@ -114,3 +135,6 @@ var	pollInterval	time.Duration
 
 var	aresHost	string
 var	aresPort	int
+
+var	jobrunnerUsername	string
+var	jobrunnerPassword	string

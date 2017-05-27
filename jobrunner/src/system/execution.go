@@ -11,8 +11,7 @@ import (
 	"execution_engine"
 	"io/ioutil"
 	"encoding/json"
-	"net/http"
-	"bytes"
+	"clients"
 )
 
 type exitStatus string
@@ -193,7 +192,6 @@ func (e *execution) stage() error {
 func (e *execution) create() error {
 	e.log.Debug("Creating execution context...")
 
-	// TODO: make a way to add environment variables to the container
 	sysEnv := make(map[string]string)
 
 	ctx := execution_engine.ExecutionContext {
@@ -329,37 +327,13 @@ func (e *execution) cleanup() bool {
 }
 
 func (e *execution) respond() {
-	if e.testResult == nil {
-		e.log.Warning("No result ... creating empty result ...")
-		e.testResult = &types.TestResult{}
-	}
+	apiClient := clients.GetAPIClient()
 
-	e.log.Debug("Sending response ...")
-
-	jsonData, err := json.Marshal(e.testResult)
+	err := apiClient.SendResult(e.job.Uuid, e.testResult)
 	if err != nil {
-		e.log.Error(err)
+		e.log.Errorf("failed to send result: %s", err)
 		return
 	}
 
-	e.log.Debug(cfg.AresReturnUrl(e.job.Uuid))
-	e.log.Debug(string(jsonData))
-	req, err := http.NewRequest(http.MethodPost, cfg.AresReturnUrl(e.job.Uuid), bytes.NewBuffer(jsonData))
-	if err != nil {
-		e.log.Error(err)
-		return
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		e.log.Error(err)
-		return
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		e.log.Error(res.StatusCode)
-	}
+	e.log.Debug("result sent to api server!")
 }

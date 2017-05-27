@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export HERMES_PORT=8087
-export HERMES_TIMEOUT=20
+export HERMES_TIMEOUT=60
 export HERMES_POLL_INTERVAL=2
 
 export HERMES_STAGING_DIR=./stage
@@ -10,6 +10,9 @@ export HERMES_LOG_DIR=./log
 
 export ARES_HOST=localhost
 export ARES_PORT=8080
+
+export JOBRUNNER_USERNAME=jobrunner
+export JOBRUNNER_PASSWORD=jobrunner
 
 ./hermes
 
