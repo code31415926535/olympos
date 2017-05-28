@@ -684,18 +684,8 @@ def create_mock_users(token):
 
 # MOCK DATA START
 envs = [{
-            "name": "Gaia-0.1",
-            "image": "olympos/gaia:0.1",
-            "description": """Gaia is the base test environment provided with olympos. It is capable of testing "python 2.7", "c", and "c++" programs.
-It has the following commands:
-1. Bash: Execute a bash "command" with an "arg" list.
-2. Assert File: Check if two files are equal.
-""",
-            "test_mount": "/mnt/test",
-            "out_mount": "/mnt/out"
-}, {
-            "name": "Gaia-0.2",
-            "image": "olympos/gaia:0.2",
+            "name": "Gaia-1.0",
+            "image": "olympos/gaia:1.0",
             "description": """Gaia is the base test environment provided with olympos. It is capable of testing "python 2.7", "c", and "c++" programs.
 It has the following commands:
 1. Bash: Execute a bash "command" with an "arg" list.
@@ -728,7 +718,7 @@ This is one of the simplest tests, since it only uses 2 tasks: "bash" and "asser
     - name: "bash"
       arg:
         command: "gcc"
-        args: [ "./hello.c", "-o", "./a"]
+        args: "./hello.c -o ./a"
   test:
     - for:
         case: "hello-world"
@@ -737,13 +727,13 @@ This is one of the simplest tests, since it only uses 2 tasks: "bash" and "asser
           name: "bash"
           arg:
             command: "cp"
-            args: ["./in/hello1.in", "./hello.in"]
-        execution:
+            args: "./in/hello1.in ./hello.in"
+        execute:
           name: "bash"
           arg:
             command: "./a"
-            args: []
-        evaluation:
+            args: ""
+        evaluate:
           name: "assert_file"
           arg:
             actual: "./hello.out"
@@ -752,7 +742,7 @@ This is one of the simplest tests, since it only uses 2 tasks: "bash" and "asser
           name: "bash"
           arg:
             command: "rm"
-            args: ["./hello.out"]
+            args: "./hello.out"
 """
     }, {
         "name": "/in/hello1.in",
@@ -770,7 +760,7 @@ The tested program needs to read two numbers from 'stdin' and print the "GCD" of
 
 The program needs to be written in c.
 """,
-        "env": envs[1]
+        "env": envs[0]
     },
     "files": [{
         "name": "config.yaml",
