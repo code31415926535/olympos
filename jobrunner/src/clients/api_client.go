@@ -118,8 +118,8 @@ func (c *apiClient) authenticate() error {
 
 	logger.Log.Debug("authenticating ...")
 	credentials := &credentialsStructure {
-		Username: cfg.JobrunnerUsername(),
-		Password: cfg.JobrunnerPassword(),
+		Username: cfg.HermesUsername(),
+		Password: cfg.HermesPassword(),
 	}
 
 	jsonData, err := json.Marshal(credentials)

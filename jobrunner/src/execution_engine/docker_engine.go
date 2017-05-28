@@ -60,7 +60,6 @@ func (DockerExecutionEngine) CreateContainer(name string, image string, context 
 	var config = &docker.Config {
 		Image:           image,
 		Env:             environments,
-		Cmd: []string {"exit 1"},
 		NetworkDisabled: true,
 	}
 
@@ -79,6 +78,7 @@ func (DockerExecutionEngine) CreateContainer(name string, image string, context 
 		logger.Log.Error(err.Error())
 		return "", err
 	}
+
 	containerId := container.ID
 
 	err = client.StartContainer(containerId, hostConfig)

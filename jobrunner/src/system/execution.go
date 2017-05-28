@@ -40,7 +40,9 @@ const (
 type execution struct {
 	job        	*types.Job
 	stagingDir 	string
+	hostStagingDir	string
 	outputDir	string
+	hostOutputDir	string
 	id         	string
 	log        	*logging.Logger
 	exitStatus	exitStatus
@@ -58,19 +60,23 @@ func (e *execution) String() string {
 				test:		%s
 				submitted file: %s
 		stagingDir: 	%s
+		hostStagingDir:	%s
 		outputDir:	%s
+		outStagingDir:	%s
 		id: 		%s
 		exitStatus: 	%s
 		timeout:	%s
 		containerId:	%s
-		testResult:	%s
+		testResult:	%v
 	`,
 		e.job.Uuid,
 		e.job.TestInfo.Environment.Image,
 		e.job.TestInfo.Name,
 		e.job.Submission.SubmissionFile,
 		e.stagingDir,
+		e.hostStagingDir,
 		e.outputDir,
+		e.hostOutputDir,
 		e.id,
 		e.exitStatus,
 		e.timeout,
@@ -134,7 +140,9 @@ func (e *execution) main() {
 
 func (e *execution) config() {
 	e.stagingDir = path.Join(cfg.StagingDir(), e.job.Uuid)
+	e.hostStagingDir = path.Join(cfg.HostStagingDir(), e.job.Uuid)
 	e.outputDir = path.Join(cfg.OutputDir(), e.job.Uuid)
+	e.hostOutputDir = path.Join(cfg.HostOutputDir(), e.job.Uuid)
 	e.id = fmt.Sprintf("exec-%d", cfg.ExecutionId())
 	e.log = logging.MustGetLogger(e.id)
 	e.exitStatus = ExitStatusNone
@@ -196,11 +204,11 @@ func (e *execution) create() error {
 
 	ctx := execution_engine.ExecutionContext {
 		CoreMount: execution_engine.Volume {
-			HostPath: e.stagingDir,
+			HostPath: e.hostStagingDir,
 			DestinationPath: e.job.TestInfo.Environment.TestMount,
 		},
 		OutputMount: execution_engine.Volume {
-			HostPath: e.outputDir,
+			HostPath: e.hostOutputDir,
 			DestinationPath: e.job.TestInfo.Environment.OutMount,
 		},
 		SysEnv: sysEnv,

@@ -20,11 +20,14 @@ const (
 	HERMES_OUTPUT_DIR_ENV = "HERMES_OUTPUT_DIR"
 	HERMES_LOG_DIR_ENV = "HERMES_LOG_DIR"
 
+	HERMES_HOST_STAGING_MOUNT_ENV = "HERMES_HOST_STAGING_MOUNT"
+	HERMES_HOST_OUT_MOUNT_ENV = "HERMES_HOST_OUT_MOUNT"
+
 	ARES_HOSTNAME_ENV = "ARES_HOSTNAME"
 	ARES_PORT_ENV = "ARES_PORT"
 
-	JOBRUNNER_USERNAME_ENV = "JOBRUNNER_USERNAME"
-	JOBRUNNER_PASSWORD_ENV = "JOBRUNNER_PASSWORD"
+	HERMES_USERNAME_ENV = "HERMES_USERNAME"
+	HERMES_PASSWORD_ENV = "HERMES_PASSWORD"
 )
 
 func CreateDefault() {
@@ -32,7 +35,9 @@ func CreateDefault() {
 	executionEngine = execution_engine.DockerExecutionEngine{}
 
 	stagingDir, _ = filepath.Abs("./stage")
+	hostStagingDir = stagingDir
 	outputDir, _ = filepath.Abs("./out")
+	hostOutputDir = outputDir
 	logDir, _ = filepath.Abs("./log")
 
 	executionId = 1
@@ -42,8 +47,8 @@ func CreateDefault() {
 	aresHost = "localhost"
 	aresPort = 8080
 
-	jobrunnerUsername = "jobrunner"
-	jobrunnerPassword = "jobrunner"
+	hermesUsername = "jobrunner"
+	hermesPassword = "jobrunner"
 }
 
 func CreateFromEnv() {
@@ -51,7 +56,9 @@ func CreateFromEnv() {
 	executionEngine = execution_engine.DockerExecutionEngine{}
 
 	stagingDir, _ = filepath.Abs(os.Getenv(HERMES_STAGING_DIR_ENV))
+	hostStagingDir = os.Getenv(HERMES_HOST_STAGING_MOUNT_ENV)
 	outputDir, _ = filepath.Abs(os.Getenv(HERMES_OUTPUT_DIR_ENV))
+	hostOutputDir = os.Getenv(HERMES_HOST_OUT_MOUNT_ENV)
 	logDir, _ = filepath.Abs(os.Getenv(HERMES_LOG_DIR_ENV))
 
 	executionId = 1
@@ -64,8 +71,8 @@ func CreateFromEnv() {
 	aresHost = os.Getenv(ARES_HOSTNAME_ENV)
 	aresPort, _ = strconv.Atoi(os.Getenv(ARES_PORT_ENV))
 
-	jobrunnerUsername = os.Getenv(JOBRUNNER_USERNAME_ENV)
-	jobrunnerPassword = os.Getenv(JOBRUNNER_PASSWORD_ENV)
+	hermesUsername = os.Getenv(HERMES_USERNAME_ENV)
+	hermesPassword = os.Getenv(HERMES_PASSWORD_ENV)
 }
 
 func Port() int {
@@ -80,8 +87,16 @@ func StagingDir() string {
 	return stagingDir
 }
 
+func HostStagingDir() string {
+	return hostStagingDir
+}
+
 func OutputDir() string {
 	return outputDir
+}
+
+func HostOutputDir() string {
+	return hostOutputDir
 }
 
 func LogDir() string {
@@ -112,19 +127,21 @@ func AresAuthUrl() string {
 	return fmt.Sprintf("http://%s:%d/auth", aresHost, aresPort)
 }
 
-func JobrunnerUsername() string {
-	return jobrunnerUsername
+func HermesUsername() string {
+	return hermesUsername
 }
 
-func JobrunnerPassword() string {
-	return jobrunnerPassword
+func HermesPassword() string {
+	return hermesPassword
 }
 
 var 	port 		int
 var	executionEngine	execution_engine.ExecutionEngine
 
 var	stagingDir	string
+var	hostStagingDir	string
 var	outputDir	string
+var	hostOutputDir	string
 var	logDir		string
 
 var	executionId 		int
@@ -136,5 +153,5 @@ var	pollInterval	time.Duration
 var	aresHost	string
 var	aresPort	int
 
-var	jobrunnerUsername	string
-var	jobrunnerPassword	string
+var	hermesUsername	string
+var	hermesPassword	string
