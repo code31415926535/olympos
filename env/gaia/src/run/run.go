@@ -28,34 +28,40 @@ func (tr *TestRunner) GetResult() *TestResult {
 }
 
 func (tr *TestRunner) Start() (statusCode, error) {
+	log.Println("preparing execution ...")
 	err := tr.prepare()
 	if err != nil {
 		return StatusUnknown, fmt.Errorf("failed to prepare execution: %s\n", err.Error())
 	}
 	log.Println("execution ready!")
 
+	log.Println("loading init tasks ...")
 	err = tr.loadInitTasks()
 	if err != nil {
 		return StatusBadConfig, fmt.Errorf("failed to load init tasks: %s\n", err.Error())
 	}
 	log.Println("init tasks loaded!")
 
+	log.Println("loading test cases ...")
 	err = tr.loadTestCases()
 	if err != nil {
 		return StatusBadConfig, fmt.Errorf("failed to load test cases: %s\n", err.Error())
 	}
 	log.Println("test cases loaded!")
 
+	log.Println("running init tasks ...")
 	err = tr.performInitTasks()
 	if err != nil {
 		return StatusRuntimeError, fmt.Errorf("init tasks failed: %s\n", err.Error())
 	}
 	log.Println("init tasks done!")
 
+	log.Println("running test cases ...")
 	err = tr.performTestCases()
 	if  err != nil {
 		return StatusRuntimeError, fmt.Errorf("test cases failed: %s\n", err.Error())
 	}
+	log.Println("test cases done!")
 
 	return StatusOk, nil
 }

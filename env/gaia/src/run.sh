@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-export TEST_ROOT=/home/iamgod/Documents/weCode/tests/hello/test
-export OUT_ROOT=/home/iamgod/Documents/weCode/tests/hello
+export TEST_ROOT=/tmp/olympos/stage/bf327b70-1789-494a-aadf-f768d4b169b1
+export OUT_ROOT=/tmp/olympos/out/bf327b70-1789-494a-aadf-f768d4b169b1
 export UUID=testuuid
 
 go run main.go

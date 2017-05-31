@@ -6,7 +6,6 @@ var path = require('path');
 var winston = require('winston');
 var cors = require('cors');
 
-
 global.root = path.resolve(__dirname);
 
 var swagger = require(global.root + '/swagger');

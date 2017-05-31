@@ -768,53 +768,53 @@ The program needs to be written in c.
   init:
     - name: "gcc"
       arg:
-        target: "./gcd.c"
+        file: "./gcd.c"
+        output: "./a"
   test:
     - for:
         case: "relative-prime"
       do:
-        execution:
+        execute:
           name: "bashio"
           arg:
             command: "./a"
+            args: ""
             input: "./in/rel-prime.in"
             output: "./gcd.out"
-        evaluation:
-          name: "compare_fmt"
+        evaluate:
+          name: "assert_file"
           arg:
             actual: "./gcd.out"
             expected: "./out/rel-prime.out"
-            format: "%d"
     - for:
         case: "have-divisors"
       do:
-        execution:
+        execute:
           name: "bashio"
           arg:
             command: "./a"
+            args: ""
             input: "./in/have-div.in"
             output: "./gcd.out"
-        evaluation:
-          name: "compare_fmt"
+        evaluate:
+          name: "assert_file"
           arg:
             actual: "./gcd.out"
             expected: "./out/have-div.out"
-            format: "%d"
     - for:
         case: "one-divides-another"
       do:
-        execution:
+        execute:
           name: "bashio"
           arg:
             command: "./a"
             input: "./in/oda.in"
             output: "./gcd.out"
-        evaluation:
-          name: "compare_fmt"
+        evaluate:
+          name: "assert_file"
           arg:
             actual: "./gcd.out"
             expected: "./out/oda.out"
-            format: "%d"
 """
     }, {
         "name": "/in/rel-prime.in",
@@ -834,6 +834,154 @@ The program needs to be written in c.
     }, {
         "name": "/out/oda.out",
         "content": """60"""
+    }]
+}, {
+    "test": {
+        "name": "First n prime numbers test",
+        "description": """A test for a program that prints the first N prime numbers.
+The tested program needs to read the number "n" from stdin, and print the first "n" prime numbers.
+
+The program needs to be written in cpp.
+""",
+        "env": envs[0]
+    },
+    "files": [{
+        "name": "config.yaml",
+        "content": """run:
+  init:
+    - name: "g++"
+      arg:
+        file: "./prim.cpp"
+        output: "./prim"
+  test:
+    - for:
+        case: "1"
+      do:
+        execute:
+          name: "bash_io"
+          arg:
+            command: "./prim"
+            args: ""
+            input: "./1.be"
+            output: "./kimenet"
+        evaluate:
+          name: "assert_file"
+          arg:
+            actual: "./kimenet"
+            expected: "1.ki"
+    - for:
+        case: "2"
+      do:
+        execute:
+          name: "bash_io"
+          arg:
+            command: "./prim"
+            args: ""
+            input: "./2.be"
+            output: "./kimenet"
+        evaluate:
+          name: "assert_file"
+          arg:
+            actual: "./kimenet"
+            expected: "2.ki"
+    - for:
+        case: "3"
+      do:
+        execute:
+          name: "bash_io"
+          arg:
+            command: "./prim"
+            args: ""
+            input: "./3.be"
+            output: "./kimenet"
+        evaluate:
+          name: "assert_file"
+          arg:
+            actual: "./kimenet"
+            expected: "3.ki"
+    - for:
+        case: "4"
+      do:
+        execute:
+          name: "bash_io"
+          arg:
+            command: "./prim"
+            args: ""
+            input: "./4.be"
+            output: "./kimenet"
+        evaluate:
+          name: "assert_file"
+          arg:
+            actual: "./kimenet"
+            expected: "4.ki"
+    - for:
+        case: "5"
+      do:
+        execute:
+          name: "bash_io"
+          arg:
+            command: "./prim"
+            args: ""
+            input: "./5.be"
+            output: "./kimenet"
+        evaluate:
+          name: "assert_file"
+          arg:
+            actual: "./kimenet"
+            expected: "5.ki"
+    - for:
+        case: "6"
+      do:
+        execute:
+          name: "bash_io"
+          arg:
+            command: "./prim"
+            args: ""
+            input: "./6.be"
+            output: "./kimenet"
+        evaluate:
+          name: "assert_file"
+          arg:
+            actual: "./kimenet"
+            expected: "6.ki"
+
+"""
+    }, {
+        "name": "1.be",
+        "content": """2"""
+    }, {
+        "name": "1.ki",
+        "content": """2 3"""
+    }, {
+        "name": "2.be",
+        "content": """5"""
+    }, {
+        "name": "2.ki",
+        "content": """2 3 5 7 11"""
+    }, {
+        "name": "3.be",
+        "content": """10"""
+    }, {
+        "name": "3.ki",
+        "content": """2 3 5 7 11 13 17 19 23 29"""
+    }, {
+        "name": "4.be",
+        "content": """15"""
+    }, {
+        "name": "4.ki",
+        "content": """2 3 5 7 11 13 17 19 23 29 31 37 41 43 47"""
+    }, {
+        "name": "5.be",
+        "content": "20"
+    }, {
+        "name": "5.ki",
+        "content": """2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71"""
+    }, {
+        "name": "6.be",
+        "content": """30"""
+    }, {
+        "name": "6.ki",
+        "content": """2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103 107 109 113"""
     }]
 }]
 
@@ -867,8 +1015,17 @@ Note: You should try out different solutions to see how the system behaves.
 }, {
     "name": "Greatest Common Divisor",
     "description": """The task is to write a "c" program that reads 2 numbers and calculates their greatest common divisor.
+
+Filename: "gcd.c"
 """,
     "test": tests[1]["test"]
+}, {
+    "name": "First n prime numbers",
+    "description": """The task is to write a "c++" program that reads the number "n", then prints the first "n" prime numbers.
+NOTE: You need to print the first "n" prime numbers, not prime number less than "n".
+
+The filename: "prim.cpp" """,
+    "test": tests[2]["test"]
 }]
 
 submissions = [{
@@ -933,6 +1090,42 @@ int main() {
 """
     },
     "toTask": "Hello World"
+}, {
+    "username": "odysseus",
+    "password": "password",
+    "file": {
+            "name": "prim.cpp",
+            "content": """#include <iostream>
+#include <cmath>
+using namespace std;
+
+int prim(int n)
+{
+    if(n<2) return 0;
+    for(int i=2;i<=sqrt(n);i++)
+            if (n%i==0) return 0;
+    return 1;
+}
+
+int main()
+{
+    int n;
+    cin>>n;
+    int k=2,db=0;
+    while (db<n)
+    {
+        if (prim(k))
+        {
+            cout<<k<<" ";
+            db++;
+        }
+        k++;
+    }
+    return 0;
+}
+"""
+    },
+    "toTask": "First n prime numbers"
 }]
 
 # MOCK DATA END

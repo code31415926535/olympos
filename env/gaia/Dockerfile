@@ -2,7 +2,7 @@ FROM ubuntu:latest
 
 MAINTAINER szaszdex@gmail.com
 
-RUN apt-get -y update && apt-get -y install gcc
+RUN apt-get -y update && apt-get -y install gcc && apt-get -y install g++
 RUN mkdir -p /opt/olympos && mkdir -p /mnt/out && mkdir -p /mnt/test
 WORKDIR /opt/olympos
 
