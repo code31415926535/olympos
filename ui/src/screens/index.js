@@ -3,4 +3,6 @@ import Login from './Login'
 import Register from './Register'
 import NotFound from './NotFound'
 
-export { Root, Login, Register, NotFound }
+import Home from './Home'
+
+export { Root, Login, Register, NotFound, Home }

@@ -16,7 +16,7 @@ class NotFound extends Component {
                 <br />
                 <br />
                 <FlexContainerCenter>
-                    <NotFoundCard/>
+                    <NotFoundCard />
                 </FlexContainerCenter>
             </div>
         )

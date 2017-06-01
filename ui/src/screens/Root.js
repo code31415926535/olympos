@@ -13,6 +13,9 @@ class Root extends Component {
 
         if (session.token === null) {
             toScreen('/login');
+        } else {
+            console.log(session);
+            toScreen('/home');
         }
     }
 

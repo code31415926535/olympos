@@ -1,4 +1,7 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import { push } from 'react-router-redux'
+import { connect } from 'react-redux'
 
 import FlexContainerCenter from '../containers/FlexContainerCenter'
 
@@ -11,6 +14,13 @@ class Login extends Component {
     }
 
     render() {
+        const { session, toScreen } = this.props;
+
+        if (session.token !== null) {
+            toScreen('/home');
+            return null
+        }
+
         return (
             <div>
                 <NavBar />
@@ -24,6 +34,28 @@ class Login extends Component {
     }
 }
 
+Login.propTypes = {
+    session: PropTypes.object.isRequired,
+    toScreen: PropTypes.func.isRequired
+};
 
+const mapStateToProps = (state) => {
+    return {
+        session: state.session
+    }
+};
 
-export default Login
+const mapDispatchToProps = (dispatch) => {
+    return {
+        toScreen: (name) => {
+            dispatch(push(name))
+        }
+    }
+};
+
+const ReduxLogin = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Login);
+
+export default ReduxLogin

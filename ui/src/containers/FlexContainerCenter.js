@@ -13,11 +13,11 @@ class FlexContainerCenter extends Component {
         return (
             <Container>
                 <Row>
-                    <Col xs={0} sm={0} md={1} lg={1} xl={2} />
-                    <Col xs={12} sm={12} md={10} lg={10} xl={8}>
+                    <Col xs={0} sm={0} md={1} lg={1} xl={1} />
+                    <Col xs={12} sm={12} md={10} lg={10} xl={10}>
                         {children}
                     </Col>
-                    <Col xs={0} sm={0} md={1} lg={1} xl={2} />
+                    <Col xs={0} sm={0} md={1} lg={1} xl={1} />
                 </Row>
             </Container>
         )

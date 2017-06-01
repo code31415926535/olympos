@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
-import {Paper} from "material-ui";
-import muiThemeable from 'material-ui/styles/muiThemeable';
+
+import { Card, CardTitle, Divider } from "material-ui";
+import Build from 'material-ui/svg-icons/action/build'
+import Header from './basic/Header'
+import Paragraph from './basic/Paragraph'
+
 
 class NotFoundCard extends Component {
     constructor(props) {
@@ -8,23 +12,24 @@ class NotFoundCard extends Component {
     }
 
     render() {
-        const { muiTheme } = this.props;
-
         return (
-            <Paper zDepth={2}
+            <Card zDepth={2}
                    style={{
                        padding: "35px"
                    }}>
-                <h2 style={{color: muiTheme.palette.textColor}}>
-                    404 Not Found
-                </h2>
-                <br />
-                <p style={{color: muiTheme.palette.textColor}}>
-                    I'm afraid this is not the page you are looking for ...
-                </p>
-            </Paper>
+                <CardTitle>
+                    <Header text="404 Not Found">
+                        <Build style={{
+                            paddingRight: "20px"
+                        }} />
+                    </Header>
+                </CardTitle>
+                <Divider />
+                <Paragraph text=" We tried really hard, but we couldn't find this page anywhere." />
+                <Paragraph text="We suggest you go back. There is nothing to see here."/>
+            </Card>
         )
     }
 }
 
-export default muiThemeable()(NotFoundCard)
+export default NotFoundCard
