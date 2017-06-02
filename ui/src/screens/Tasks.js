@@ -5,9 +5,11 @@ import { push } from 'react-router-redux'
 
 import NavBar from "../components/NavBar"
 import FlexContainerCenter from "../containers/FlexContainerCenter"
-import WellcomeMessage from "../components/WellcomeMessage"
+import Header from "../components/basic/Header"
+import Paragraph from "../components/basic/Paragraph"
+import TaskSubmitList from "../components/TaskSubmitList"
 
-class Home extends Component {
+class Tasks extends Component {
     constructor(props) {
         super(props)
     }
@@ -22,18 +24,27 @@ class Home extends Component {
 
         return (
             <div>
-                <NavBar screen='home' />
+                <NavBar screen='tasks'/>
                 <br />
                 <br />
                 <FlexContainerCenter>
-                    <WellcomeMessage />
+                    <div style={{
+                        margin: "10px",
+                        padding: "35px"
+                    }}>
+                        <Header text="Tasks"/>
+                        <Paragraph text="Here is a list of available tasks. Choose one and start coding!" />
+                        <br />
+                        <TaskSubmitList session={session}
+                                        toScreen={toScreen}/>
+                    </div>
                 </FlexContainerCenter>
             </div>
         )
     }
 }
 
-Home.propTypes = {
+Tasks.propTypes = {
     session: PropTypes.object.isRequired,
     toScreen: PropTypes.func.isRequired
 };
@@ -52,9 +63,9 @@ const mapDispatchToProps = (dispatch) => {
     }
 };
 
-const ReduxHome = connect(
+const ReduxTask = connect(
     mapStateToProps,
     mapDispatchToProps
-)(Home);
+)(Tasks);
 
-export default ReduxHome
+export default ReduxTask

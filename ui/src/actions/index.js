@@ -2,6 +2,8 @@ export const SUBMIT_LOGIN = "SUBMIT_LOGIN";
 export const LOGIN_OK = "LOGIN_OK";
 export const LOGIN_FAIL = "LOGIN_FAIL";
 
+export const LOG_OUT = "LOG_OUT";
+
 export const SUBMIT_REGISTER = "SUBMIT_REGISTER";
 
 export const CHANGE_THEME = "CHANGE_THEME";
@@ -32,7 +34,13 @@ export const loginFail = (statusCode) => {
         type: LOGIN_FAIL,
         error
     }
-}
+};
+
+export const logOut = () => {
+    return {
+        type: LOG_OUT
+    }
+};
 
 export const submitRegister = (username, password, email) => {
     return {

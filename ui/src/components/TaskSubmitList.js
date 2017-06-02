@@ -1,20 +1,19 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
-import { getEnvList } from '../util'
+import { getTaskList } from '../util'
 
 import {CircularProgress} from "material-ui"
 import ErrorOutline from 'material-ui/svg-icons/alert/error-outline'
-import EnvCard from "./basic/EnvCard"
 import Grid from '../containers/Grid'
-import CardNew from "./basic/CardNew"
+import TaskSubmitCard from "./basic/TaskSubmitCard";
 
-class EnvList extends Component {
+class TaskSubmitList extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            envData: null,
+            taskData: null,
             error: null
         }
     }
@@ -22,18 +21,17 @@ class EnvList extends Component {
     componentWillMount() {
         const { session } = this.props;
 
-        getEnvList(session.token, (result) => {
+        getTaskList(session.token, (result) => {
             this.setState(() => {
-                result.push(null);
                 return {
-                    envData: result,
+                    taskData: result,
                     error: null
                 }
             })
         }, () => {
             this.setState(() => {
                 return {
-                    envData: null,
+                    taskData: null,
                     error: true
                 }
             })
@@ -41,27 +39,26 @@ class EnvList extends Component {
     }
 
     render() {
-        const { envData, error } = this.state;
+        const { toScreen } = this.props;
+        const { taskData, error } = this.state;
 
         if (error !== null) {
             return (<ErrorOutline />)
         }
 
-        if (envData === null) {
+        if (taskData === null) {
             return (<CircularProgress size={60} />)
         }
 
         return (
             <Grid>
-                {envData.map((item, key) => {
-                    if (item === null) {
-                        return (
-                            <CardNew/>
-                        )
-                    }
-
+                {taskData.map((item, key) => {
                     return (
-                        <EnvCard env={item} key={key}/>
+                        <TaskSubmitCard task={item}
+                                        key={key}
+                                        onMoreClick={() => {
+                                            toScreen('/task/' + item.name)
+                                        }}/>
                     )
                 })}
             </Grid>
@@ -69,8 +66,9 @@ class EnvList extends Component {
     }
 }
 
-EnvList.propTypes = {
-    session: PropTypes.object.isRequired
+TaskSubmitList.propTypes = {
+    session: PropTypes.object.isRequired,
+    toScreen: PropTypes.func.isRequired
 };
 
-export default EnvList
+export default TaskSubmitList

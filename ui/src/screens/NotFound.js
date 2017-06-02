@@ -12,7 +12,7 @@ class NotFound extends Component {
     render() {
         return (
             <div>
-                <NavBar/>
+                <NavBar screen='notfound'/>
                 <br />
                 <br />
                 <FlexContainerCenter>

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
-import { changeTheme } from '../actions'
+import { changeTheme, logOut } from '../actions'
 
 import {
     IconMenu, FlatButton, Toggle,
@@ -10,8 +10,11 @@ import {
     IconButton, MenuItem
 } from "material-ui"
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert'
+import Home from 'material-ui/svg-icons/action/home'
+import Manage from 'material-ui/svg-icons/action/build'
+import Tasks from 'material-ui/svg-icons/social/school'
+import InvertColors from 'material-ui/svg-icons/action/invert-colors'
 import ExitTheApp from 'material-ui/svg-icons/action/exit-to-app'
-import Paragraph from "./basic/Paragraph";
 
 class NavBar extends Component {
     constructor(props) {
@@ -22,12 +25,42 @@ class NavBar extends Component {
         const { session, theme, screen,
             toScreen, onThemeToggle, onLogOut } = this.props;
 
+        let navigationMenu = null;
+        if (session.token !== null) {
+            navigationMenu = (
+                <ToolbarGroup>
+                    <IconButton onTouchTap={() => {
+                                    toScreen('home')
+                                }}
+                                style={{
+                                    marginRight: "20px"
+                                }}>
+                        <Home />
+                    </IconButton>
+                    <IconButton onTouchTap={() => {
+                                    toScreen('manage')
+                                }}
+                                style={{
+                                    marginRight: "20px"
+                                }}>
+                        <Manage />
+                    </IconButton>
+                    <IconButton onTouchTap={() => {
+                                    toScreen('tasks')
+                                }}>
+                        <Tasks />
+                    </IconButton>
+                    <ToolbarSeparator/>
+                </ToolbarGroup>
+            )
+        }
+
         let rightMenu = null;
-        if (session.value === null) {
+        if (session.token === null) {
             if (screen === 'login') {
                 rightMenu = (
                     <FlatButton label="Register"
-                                secondary={true}
+                                primary={true}
                                 onClick={() => {
                                   toScreen('register')
                                 }} />
@@ -35,7 +68,7 @@ class NavBar extends Component {
             } else {
                 rightMenu = (
                     <FlatButton label="Login"
-                                secondary={true}
+                                primary={true}
                                 onClick={() => {
                                     toScreen('login')
                                 }}/>
@@ -50,7 +83,11 @@ class NavBar extends Component {
                     targetOrigin={{horizontal: 'right', vertical: 'top'}}
                     anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                 >
-                    <MenuItem primaryText="Logout" rightIcon={<ExitTheApp/>}/>
+                    <MenuItem primaryText="Logout"
+                              rightIcon={<ExitTheApp/>}
+                              onTouchTap={() => {
+                                  onLogOut()
+                              }}/>
                 </IconMenu>
             )
         }
@@ -65,23 +102,21 @@ class NavBar extends Component {
                     <ToolbarSeparator style={{
                         margin: "20px"
                     }} />
-                    <Paragraph text="Dark" color="secondary" />
                     <Toggle style={{
-                                marginLeft: "20px",
                                 width: "60px"
                             }}
-                            labelPosition="right"
+                            labelPosition="left"
+                            label={<InvertColors />}
                             toggled={toggled}
                             onToggle={() => {
                                 onThemeToggle();
                                 toScreen('/')
                             }} />
-                    <Paragraph text="Light" color="secondary"/>
                     <ToolbarSeparator style={{
                         margin: "20px"
                     }} />
+                    {navigationMenu}
                 </ToolbarGroup>
-
                 <ToolbarGroup lastChild={true}>
                     {rightMenu}
                 </ToolbarGroup>
@@ -96,7 +131,8 @@ NavBar.propTypes = {
     screen: PropTypes.string.isRequired,
 
     toScreen: PropTypes.func.isRequired,
-    onThemeToggle: PropTypes.func.isRequired
+    onThemeToggle: PropTypes.func.isRequired,
+    onLogOut: PropTypes.func.isRequired
 };
 
 const mapStateToProps = (state) => {
@@ -113,6 +149,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         onThemeToggle: () => {
             dispatch(changeTheme())
+        },
+        onLogOut: () => {
+            dispatch(logOut())
         }
     }
 };

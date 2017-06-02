@@ -1,20 +1,19 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
-import { getEnvList } from '../util'
+import { getUserList } from '../util'
 
 import {CircularProgress} from "material-ui"
 import ErrorOutline from 'material-ui/svg-icons/alert/error-outline'
-import EnvCard from "./basic/EnvCard"
-import Grid from '../containers/Grid'
-import CardNew from "./basic/CardNew"
+import Grid from "../containers/Grid"
+import UserCard from "./basic/UserCard"
 
-class EnvList extends Component {
+class UserList extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            envData: null,
+            userData: null,
             error: null
         }
     }
@@ -22,18 +21,17 @@ class EnvList extends Component {
     componentWillMount() {
         const { session } = this.props;
 
-        getEnvList(session.token, (result) => {
+        getUserList(session.token, (result) => {
             this.setState(() => {
-                result.push(null);
                 return {
-                    envData: result,
+                    userData: result,
                     error: null
                 }
             })
         }, () => {
             this.setState(() => {
                 return {
-                    envData: null,
+                    userData: null,
                     error: true
                 }
             })
@@ -41,27 +39,21 @@ class EnvList extends Component {
     }
 
     render() {
-        const { envData, error } = this.state;
+        const { userData, error } = this.state;
 
         if (error !== null) {
             return (<ErrorOutline />)
         }
 
-        if (envData === null) {
+        if (userData === null) {
             return (<CircularProgress size={60} />)
         }
 
         return (
             <Grid>
-                {envData.map((item, key) => {
-                    if (item === null) {
-                        return (
-                            <CardNew/>
-                        )
-                    }
-
+                {userData.map((item, key) => {
                     return (
-                        <EnvCard env={item} key={key}/>
+                        <UserCard user={item} key={key}/>
                     )
                 })}
             </Grid>
@@ -69,8 +61,8 @@ class EnvList extends Component {
     }
 }
 
-EnvList.propTypes = {
+UserList.propTypes = {
     session: PropTypes.object.isRequired
 };
 
-export default EnvList
+export default UserList

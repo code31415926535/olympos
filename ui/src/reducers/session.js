@@ -1,4 +1,4 @@
-import { SUBMIT_LOGIN, LOGIN_OK, LOGIN_FAIL, loginOk, loginFail } from '../actions'
+import { SUBMIT_LOGIN, LOGIN_OK, LOGIN_FAIL, LOG_OUT, loginOk, loginFail } from '../actions'
 import { auth } from '../util'
 
 const initialState = {
@@ -19,6 +19,11 @@ const session = (state = initialState, action) => {
         case LOGIN_FAIL:
             return Object.assign({}, state, {
                 error: action.error
+            });
+        case LOG_OUT:
+            return Object.assign({}, state, {
+                error: null,
+                token: null
             });
         default:
             return state;

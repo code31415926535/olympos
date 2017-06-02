@@ -23,7 +23,7 @@ class Login extends Component {
 
         return (
             <div>
-                <NavBar />
+                <NavBar screen='login'/>
                 <br />
                 <br />
                 <FlexContainerCenter>
