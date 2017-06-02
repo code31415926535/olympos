@@ -104,6 +104,7 @@ jobSchema.methods.toDTO = function() {
 
 jobSchema.methods.toSubmissionDTO = function() {
     return {
+        "jobUuid": this["uuid"],
         "id": this["submission_id"],
         "file": this["submission_file"].toDTO(),
         "by": this["submission_user"]["username"]

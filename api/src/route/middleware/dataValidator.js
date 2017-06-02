@@ -230,6 +230,8 @@ var validateTask = function(req, res, next) {
  * definition:
  *   Submission:
  *     properties:
+ *       jobUuid:
+ *         type: string
  *       id:
  *         type: number
  *       file:
