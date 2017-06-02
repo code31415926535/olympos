@@ -6,7 +6,7 @@ import { getUserList } from '../util'
 import {CircularProgress} from "material-ui"
 import ErrorOutline from 'material-ui/svg-icons/alert/error-outline'
 import Grid from "../containers/Grid"
-import UserCard from "./basic/UserCard"
+import UserCard from "./cards/UserCard"
 
 class UserList extends Component {
     constructor(props) {

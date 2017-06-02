@@ -5,15 +5,15 @@ import injectTapEventPlugin from 'react-tap-event-plugin'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 
-import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme'
-import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme'
+import olymposLight from './themes/olymposLight'
+import olymposDark from './themes/olymposDark'
 
-import { grey50, blueGrey800 } from 'material-ui/styles/colors'
+import { grey50, grey800 } from 'material-ui/styles/colors'
 
 injectTapEventPlugin();
 
 const lightBackground = grey50;
-const darkBackground = blueGrey800;
+const darkBackground = grey800;
 
 class AppBody extends Component {
     constructor(props) {
@@ -26,10 +26,10 @@ class AppBody extends Component {
 
         let muiTheme = null;
         if (theme.value === 'light') {
-            muiTheme = lightBaseTheme;
+            muiTheme = olymposLight;
             document.body.style.background = lightBackground;
         } else if (theme.value === 'dark') {
-            muiTheme = darkBaseTheme;
+            muiTheme = olymposDark;
             document.body.style.background = darkBackground;
         }
 

@@ -7,8 +7,8 @@ import Delete from 'material-ui/svg-icons/content/clear'
 import Edit from 'material-ui/svg-icons/content/create'
 import More from 'material-ui/svg-icons/navigation/more-horiz'
 
-import Value from "./Value"
-import Multiline from "./Multiline"
+import Value from "../basic/Value"
+import Multiline from "../basic/Multiline"
 
 class TestCard extends Component {
     constructor(props) {

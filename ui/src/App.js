@@ -19,7 +19,7 @@ const store = createStore(
 setDispatch(store.dispatch);
 
 const history = syncHistoryWithStore(hashHistory, store);
-history.listen(location => console.log(location));
+// history.listen(location => console.log(location));
 
 class App extends Component {
     constructor(props) {

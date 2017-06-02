@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
-import {Card, CardHeader, CardText, CardTitle, CardActions, IconButton} from "material-ui"
+import {Card, CardHeader, CardText, CardTitle, CardActions, IconButton, Dialog} from "material-ui"
 
-import Delete from 'material-ui/svg-icons/content/clear'
 import Edit from 'material-ui/svg-icons/content/create'
-import Value from "./Value"
-import Multiline from "./Multiline"
+import Value from "../basic/Value"
+import Multiline from "../basic/Multiline"
+import SafeDelete from "../dialogs/SafeDelete";
 
 class EnvCard extends Component {
     constructor(props) {
@@ -32,7 +32,7 @@ class EnvCard extends Component {
     }
 
     render() {
-        const { env, maxTextLength } = this.props;
+        const { env, maxTextLength, onDelete } = this.props;
 
         const { depth, expanded } = this.state;
 
@@ -74,10 +74,9 @@ class EnvCard extends Component {
                      <Value label="Test Mount:" value={env["test_mount"]} />
                  </CardText>
                  <CardActions>
-                     <IconButton disabled={true}
-                                 tooltip="Delete">
-                         <Delete />
-                     </IconButton>
+                     <SafeDelete onDelete={() => {
+                        onDelete(env.name)
+                     }}/>
                      <IconButton disabled={true}
                                  tooltip="Edit">
                          <Edit />
@@ -90,7 +89,8 @@ class EnvCard extends Component {
 
 EnvCard.propTypes = {
     env: PropTypes.object.isRequired,
-    maxTextLength: PropTypes.number
+    maxTextLength: PropTypes.number,
+    onDelete: PropTypes.func.isRequired
 };
 
 EnvCard.defaultProps = {

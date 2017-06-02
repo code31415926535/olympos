@@ -5,8 +5,8 @@ import {Card, CardHeader, CardText, CardTitle, CardActions, IconButton} from "ma
 
 import Delete from 'material-ui/svg-icons/content/clear'
 
-import Multiline from "./Multiline"
-import Value from "./Value";
+import Multiline from "../basic/Multiline"
+import Value from "../basic/Value";
 
 class TaskCard extends Component {
     constructor(props) {

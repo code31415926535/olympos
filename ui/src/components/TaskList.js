@@ -6,8 +6,7 @@ import { getTaskList } from '../util'
 import {CircularProgress} from "material-ui"
 import ErrorOutline from 'material-ui/svg-icons/alert/error-outline'
 import Grid from '../containers/Grid'
-import CardNew from "./basic/CardNew"
-import TaskCard from "./basic/TaskCard"
+import TaskCard from "./cards/TaskCard"
 
 class TaskList extends Component {
     constructor(props) {
@@ -24,7 +23,6 @@ class TaskList extends Component {
 
         getTaskList(session.token, (result) => {
             this.setState(() => {
-                result.push(null);
                 return {
                     taskData: result,
                     error: null
@@ -54,12 +52,6 @@ class TaskList extends Component {
         return (
             <Grid>
                 {taskData.map((item, key) => {
-                    if (item === null) {
-                        return (
-                            <CardNew/>
-                        )
-                    }
-
                     return (
                         <TaskCard task={item} key={key} />
                     )

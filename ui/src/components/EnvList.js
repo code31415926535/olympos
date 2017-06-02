@@ -1,47 +1,68 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
-import { getEnvList } from '../util'
+import { getEnvList, deleteEnv } from '../util'
 
 import {CircularProgress} from "material-ui"
 import ErrorOutline from 'material-ui/svg-icons/alert/error-outline'
-import EnvCard from "./basic/EnvCard"
+import EnvCard from "./cards/EnvCard"
 import Grid from '../containers/Grid'
-import CardNew from "./basic/CardNew"
+import Paragraph from "./basic/Paragraph";
 
 class EnvList extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            globalError: null,
             envData: null,
             error: null
         }
     }
 
-    componentWillMount() {
-        const { session } = this.props;
-
-        getEnvList(session.token, (result) => {
-            this.setState(() => {
-                result.push(null);
-                return {
+    _fetch(token) {
+        getEnvList(token, (result) => {
+            this.setState((state) => {
+                return Object.assign({}, state, {
                     envData: result,
                     error: null
-                }
+                })
             })
         }, () => {
-            this.setState(() => {
-                return {
+            this.setState((state) => {
+                return Object.assign({}, state, {
                     envData: null,
                     error: true
-                }
+                })
             })
         })
     }
 
+    componentWillMount() {
+        const { session: {token} } = this.props;
+
+        this._fetch(token)
+    }
+
+    _delete() {
+        return (name) => {
+            console.log(this.props);
+            const {session: {token}} = this.props;
+
+            deleteEnv(token, name, () => {
+                this._fetch(token)
+            }, () => {
+                this.setState((state) => {
+                    return Object.assign({}, state, {
+                        globalError: "Failed to delete env"
+                    })
+                })
+            })
+        }
+    }
+
     render() {
-        const { envData, error } = this.state;
+        const { envData, error, globalError } = this.state;
 
         if (error !== null) {
             return (<ErrorOutline />)
@@ -52,19 +73,18 @@ class EnvList extends Component {
         }
 
         return (
-            <Grid>
-                {envData.map((item, key) => {
-                    if (item === null) {
+            <div>
+                {globalError &&
+                    <Paragraph text={globalError} color="error"/>
+                }
+                <Grid>
+                    {envData.map((item, key) => {
                         return (
-                            <CardNew/>
+                            <EnvCard env={item} key={key} onDelete={this._delete()} />
                         )
-                    }
-
-                    return (
-                        <EnvCard env={item} key={key}/>
-                    )
-                })}
-            </Grid>
+                    })}
+                </Grid>
+            </div>
         )
     }
 }

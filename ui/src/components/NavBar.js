@@ -7,7 +7,7 @@ import { changeTheme, logOut } from '../actions'
 import {
     IconMenu, FlatButton, Toggle,
     Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle,
-    IconButton, MenuItem
+    IconButton, MenuItem, Paper
 } from "material-ui"
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert'
 import Home from 'material-ui/svg-icons/action/home'
@@ -60,7 +60,6 @@ class NavBar extends Component {
             if (screen === 'login') {
                 rightMenu = (
                     <FlatButton label="Register"
-                                primary={true}
                                 onClick={() => {
                                   toScreen('register')
                                 }} />
@@ -68,7 +67,6 @@ class NavBar extends Component {
             } else {
                 rightMenu = (
                     <FlatButton label="Login"
-                                primary={true}
                                 onClick={() => {
                                     toScreen('login')
                                 }}/>
@@ -95,32 +93,34 @@ class NavBar extends Component {
         const toggled = theme.value === 'light';
 
         return (
-            <Toolbar>
-                <ToolbarGroup>
-                    <ToolbarTitle text="Olympos"
-                                  style={{width: "120px"}}/>
-                    <ToolbarSeparator style={{
-                        margin: "20px"
-                    }} />
-                    <Toggle style={{
-                                width: "60px"
-                            }}
-                            labelPosition="left"
-                            label={<InvertColors />}
-                            toggled={toggled}
-                            onToggle={() => {
-                                onThemeToggle();
-                                toScreen('/')
-                            }} />
-                    <ToolbarSeparator style={{
-                        margin: "20px"
-                    }} />
-                    {navigationMenu}
-                </ToolbarGroup>
-                <ToolbarGroup lastChild={true}>
-                    {rightMenu}
-                </ToolbarGroup>
-            </Toolbar>
+            <Paper zDepth={2}>
+                <Toolbar>
+                    <ToolbarGroup>
+                        <ToolbarTitle text="Olympos"
+                                      style={{width: "120px"}}/>
+                        <ToolbarSeparator style={{
+                            margin: "20px"
+                        }} />
+                        <Toggle style={{
+                                    width: "60px"
+                                }}
+                                labelPosition="left"
+                                label={<InvertColors />}
+                                toggled={toggled}
+                                onToggle={() => {
+                                    onThemeToggle();
+                                    toScreen('/')
+                                }} />
+                        <ToolbarSeparator style={{
+                            margin: "20px"
+                        }} />
+                        {navigationMenu}
+                    </ToolbarGroup>
+                    <ToolbarGroup lastChild={true}>
+                        {rightMenu}
+                    </ToolbarGroup>
+                </Toolbar>
+            </Paper>
         )
     }
 }

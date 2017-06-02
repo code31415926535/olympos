@@ -5,7 +5,7 @@ import {Card, CardHeader, CardText, CardTitle, CardActions, IconButton} from "ma
 
 import More from 'material-ui/svg-icons/navigation/more-horiz'
 
-import Multiline from "./Multiline"
+import Multiline from "../basic/Multiline"
 
 class TaskSubmitCard extends Component {
     constructor(props) {

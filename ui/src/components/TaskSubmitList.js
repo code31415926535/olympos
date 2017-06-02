@@ -6,7 +6,7 @@ import { getTaskList } from '../util'
 import {CircularProgress} from "material-ui"
 import ErrorOutline from 'material-ui/svg-icons/alert/error-outline'
 import Grid from '../containers/Grid'
-import TaskSubmitCard from "./basic/TaskSubmitCard";
+import TaskSubmitCard from "./cards/TaskSubmitCard";
 
 class TaskSubmitList extends Component {
     constructor(props) {

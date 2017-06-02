@@ -10,6 +10,7 @@ import FlexContainerCenter from "../containers/FlexContainerCenter"
 import {CircularProgress, Tab, Tabs} from "material-ui"
 import Header from "../components/basic/Header"
 import Multiline from "../components/basic/Multiline"
+import ResultTable from "../components/ResultTable";
 
 class Task extends Component {
     constructor(props) {
@@ -61,7 +62,7 @@ class Task extends Component {
 
         return (
             <div>
-                <NavBar screen='task'/>
+                <NavBar screen={'task/' + taskName} />
                 <br />
                 <br />
                 <FlexContainerCenter>
@@ -80,7 +81,7 @@ class Task extends Component {
                                 margin: "10px",
                                 padding: "35px"
                             }}>
-                                <p> Implement This </p>
+                                <ResultTable session={session} taskName={taskData.name} />
                             </div>
                         </Tab>
                     </Tabs>

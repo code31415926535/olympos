@@ -12,6 +12,7 @@ import Paragraph from "../components/basic/Paragraph"
 import TestList from "../components/TestList"
 import UserList from "../components/UserList"
 import TaskList from "../components/TaskList"
+import CreateEnv from "../components/dialogs/CreateEnv"
 
 class Manage extends Component {
     constructor(props) {
@@ -32,52 +33,56 @@ class Manage extends Component {
                 <br />
                 <br />
                 <FlexContainerCenter>
-                    <Tabs>
-                        <Tab label="Environment">
-                            <div style={{
-                                       margin: "10px",
-                                       padding: "35px"
-                                   }}>
-                                <Header text="Environments"/>
-                                <Paragraph text="Environments are an isolated medium where tests run." />
-                                <br />
-                                <EnvList session={session} />
-                            </div>
-                        </Tab>
-                        <Tab label="Tests">
-                            <div style={{
-                                       margin: "10px",
-                                       padding: "35px"
-                                   }}>
-                                <Header text="Tests"/>
-                                <Paragraph text="Tests consist of a test configuration file and a list of other test files." />
-                                <br />
-                                <TestList session={session} />
-                            </div>
-                        </Tab>
-                        <Tab label="Tasks">
-                            <div style={{
-                                margin: "10px",
-                                padding: "35px"
-                            }}>
-                                <Header text="Tasks" />
-                                <Paragraph text="Task are assignments that students can complete. A task always has a test assigned to it." />
-                                <br />
-                                <TaskList session={session} />
-                            </div>
-                        </Tab>
-                        <Tab label="Users">
-                            <div style={{
+                        <Tabs>
+                            <Tab label="Environment">
+                                <div style={{
+                                           margin: "10px",
+                                           padding: "35px"
+                                       }}>
+                                    <span>
+                                        <Header text="Environments">
+                                            <CreateEnv />
+                                        </Header>
+                                    </span>
+                                    <Paragraph text="Environments are an isolated medium where tests run." />
+                                    <br />
+                                    <EnvList session={session} toScreen={toScreen} />
+                                </div>
+                            </Tab>
+                            <Tab label="Tests">
+                                <div style={{
+                                           margin: "10px",
+                                           padding: "35px"
+                                       }}>
+                                    <Header text="Tests"/>
+                                    <Paragraph text="Tests consist of a test configuration file and a list of other test files." />
+                                    <br />
+                                    <TestList session={session} />
+                                </div>
+                            </Tab>
+                            <Tab label="Tasks">
+                                <div style={{
                                     margin: "10px",
                                     padding: "35px"
                                 }}>
-                                <Header text="Users" />
-                                <Paragraph text="Here you can see a list of all users. You can change their permissions from here." />
-                                <br />
-                                <UserList session={session} />
-                            </div>
-                        </Tab>
-                    </Tabs>
+                                    <Header text="Tasks" />
+                                    <Paragraph text="Task are assignments that students can complete. A task always has a test assigned to it." />
+                                    <br />
+                                    <TaskList session={session} />
+                                </div>
+                            </Tab>
+                            <Tab label="Users">
+                                <div style={{
+                                        margin: "10px",
+                                        padding: "35px"
+                                    }}>
+                                    <Header text="Users" />
+                                    <Paragraph text="Here you can see a list of all users. You can change their permissions from here." />
+                                    <br />
+                                    <UserList session={session} />
+                                </div>
+                            </Tab>
+                        </Tabs>
                 </FlexContainerCenter>
             </div>
         )

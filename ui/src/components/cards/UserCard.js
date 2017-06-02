@@ -5,7 +5,7 @@ import {Card, CardText, CardTitle, CardActions, IconButton} from "material-ui"
 
 import Delete from 'material-ui/svg-icons/content/clear'
 import Edit from 'material-ui/svg-icons/content/create'
-import Value from "./Value"
+import Value from "../basic/Value"
 
 class UserCard extends Component {
     constructor(props) {

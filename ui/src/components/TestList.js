@@ -5,9 +5,8 @@ import { getTestList } from '../util'
 
 import {CircularProgress} from "material-ui"
 import ErrorOutline from 'material-ui/svg-icons/alert/error-outline'
-import TestCard from "./basic/TestCard"
+import TestCard from "./cards/TestCard"
 import Grid from "../containers/Grid"
-import CardNew from "./basic/CardNew";
 
 class TestList extends Component {
     constructor(props) {
@@ -24,7 +23,6 @@ class TestList extends Component {
 
         getTestList(session.token, (result) => {
             this.setState(() => {
-                result.push(null);
                 return {
                     testData: result,
                     error: null
@@ -54,12 +52,6 @@ class TestList extends Component {
         return (
             <Grid>
                 {testData.map((item, key) => {
-                    if (item === null) {
-                        return (
-                            <CardNew />
-                        )
-                    }
-
                     return (
                         <TestCard test={item} key={key}/>
                     )
