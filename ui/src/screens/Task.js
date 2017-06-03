@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { push } from 'react-router-redux'
 
-import { getTaskByName } from '../util'
+import { getTaskByName, submitFile } from '../util'
 
 import NavBar from "../components/NavBar"
 import FlexContainerCenter from "../containers/FlexContainerCenter"
@@ -12,12 +12,14 @@ import Header from "../components/basic/Header"
 import Multiline from "../components/basic/Multiline"
 import ResultTable from "../components/ResultTable";
 import SubmitFile from "../components/dialogs/SubmitFile";
+import Paragraph from "../components/basic/Paragraph";
 
 class Task extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            globalError: null,
             taskData: null,
             error: null
         }
@@ -29,6 +31,7 @@ class Task extends Component {
         getTaskByName(session.token, taskName, (result) => {
             this.setState(() => {
                 return {
+                    globalError: null,
                     taskData: result,
                     error: null
                 }
@@ -36,6 +39,7 @@ class Task extends Component {
         }, () => {
             this.setState(() => {
                 return {
+                    globalError: null,
                     taskData: null,
                     error: true
                 }
@@ -43,10 +47,26 @@ class Task extends Component {
         })
     }
 
+
+    _OnSubmit() {
+        return (file) => {
+            const {session: {token}, toScreen, params: {taskName}} = this.props;
+
+            submitFile(token, taskName, file, () => {
+                toScreen('task/' + taskName)
+            }, () => {
+                this.setState((state) => {
+                    Object.assign({}, state, {
+                        globalError: "Failed to submit file ... Try again later"
+                    })
+                })
+            })
+        }
+    };
+
     render() {
         const { session, toScreen, params: {taskName} } = this.props;
-        const { taskData, error } = this.state;
-        console.log(taskName);
+        const { taskData, error, globalError } = this.state;
 
         if (session.token === null) {
             toScreen('/login');
@@ -74,8 +94,11 @@ class Task extends Component {
                                 padding: "35px"
                             }}>
                                 <Header text={taskData.name}>
-                                    <SubmitFile />
+                                    <SubmitFile onSubmit={this._OnSubmit()}/>
                                 </Header>
+                                {globalError &&
+                                    <Paragraph text={globalError} color="error"/>
+                                }
                                 <Multiline text={taskData.description} />
                             </div>
                         </Tab>

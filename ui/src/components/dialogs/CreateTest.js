@@ -1,24 +1,57 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
+import { getEnvByName } from '../../util'
+
 import {Dialog, Divider, FlatButton, IconButton} from "material-ui"
 import TextField from 'material-ui/TextField'
 import Create from 'material-ui/svg-icons/content/add'
 
-class CreateEnv extends  Component {
+class CreateTest extends  Component {
     constructor(props) {
         super(props);
 
         this.state = {
             dialogOpen: false,
-            env: {
+            test: {
                 name: "",
-                image: "",
-                description: "",
-                out_mount: "",
-                test_mount: ""
-            }
+                env: "",
+                description: ""
+            },
+
+            envValid: true,
+            envObject: null
         }
+    }
+
+    _checkEnv() {
+        const { test: {env} } = this.state;
+        const { session: {token} } = this.props;
+
+        getEnvByName(token, env, (result) => {
+            this.setState((state) => {
+                return Object.assign({}, state, {
+                    envObject: result,
+                    envValid: true
+                })
+            })
+        }, () => {
+            this.setState((state) => {
+                return Object.assign({}, state, {
+                    envObject: null,
+                    envValid: false
+                })
+            })
+        })
+    }
+
+    _resetEnv() {
+        this.setState((state) => {
+            return Object.assign({}, state, {
+                envObject: null,
+                envValid: true
+            })
+        })
     }
 
     _toggleDialog() {
@@ -32,18 +65,8 @@ class CreateEnv extends  Component {
     _onName(value) {
         this.setState((state) => {
             return Object.assign({}, state, {
-                env: Object.assign({}, state.env, {
+                test: Object.assign({}, state.test, {
                     name: value
-                })
-            })
-        })
-    }
-
-    _onImage(value) {
-        this.setState((state) => {
-            return Object.assign({}, state, {
-                env: Object.assign({}, state.env, {
-                    image: value
                 })
             })
         })
@@ -52,28 +75,18 @@ class CreateEnv extends  Component {
     _onDescription(value) {
         this.setState((state) => {
             return Object.assign({}, state, {
-                env: Object.assign({}, state.env, {
+                test: Object.assign({}, state.test, {
                     description: value
                 })
             })
         })
     }
 
-    _onOutMount(value) {
+    _onEnvironment(value) {
         this.setState((state) => {
             return Object.assign({}, state, {
-                env: Object.assign({}, state.env, {
-                    out_mount: value
-                })
-            })
-        })
-    }
-
-    _onTestMount(value) {
-        this.setState((state) => {
-            return Object.assign({}, state, {
-                env: Object.assign({}, state.env, {
-                    test_mount: value
+                test: Object.assign({}, state.test, {
+                    env: value
                 })
             })
         })
@@ -81,13 +94,17 @@ class CreateEnv extends  Component {
 
     render() {
         const { onCreate } = this.props;
-        const { dialogOpen, env } = this.state;
+        const { dialogOpen, test, envObject, envValid } = this.state;
+
+        console.log(test);
 
         const actions = [(
             <FlatButton label="Create"
                         primary={true}
                         onTouchTap={() => {
-                            onCreate(env);
+                            onCreate(Object.assign({}, test, {
+                                env: envObject
+                            }));
                             this._toggleDialog()
                         }} />
         ), (
@@ -96,6 +113,11 @@ class CreateEnv extends  Component {
                             this._toggleDialog()
                         }} />
         )];
+
+        let errorMsg = "";
+        if (envValid === false) {
+            errorMsg = "Env not found."
+        }
 
         return (
             <div style={{
@@ -107,7 +129,7 @@ class CreateEnv extends  Component {
                     <Create />
                 </IconButton>
                 <Dialog actions={actions}
-                        title="Create Environment"
+                        title="Create Test"
                         open={dialogOpen}>
                     <TextField hintText="Name"
                                floatingLabelText="Name"
@@ -115,14 +137,6 @@ class CreateEnv extends  Component {
                                fullWidth={true}
                                onChange={(_, v) => {
                                    this._onName(v)
-                               }}/>
-                    <Divider />
-                    <TextField hintText="Image"
-                               floatingLabelText="Image"
-                               underlineShow={false}
-                               fullWidth={true}
-                               onChange={(_, v) => {
-                                   this._onImage(v)
                                }}/>
                     <Divider />
                     <TextField
@@ -136,21 +150,21 @@ class CreateEnv extends  Component {
                                    this._onDescription(v)
                                }}/>
                     <Divider />
-                    <TextField hintText="Out Mount"
-                               floatingLabelText="Out Mount"
-                               underlineShow={false}
-                               fullWidth={true}
-                               onChange={(_, v) => {
-                                   this._onOutMount(v)
-                               }}/>
-                    <Divider />
-                    <TextField hintText="Test Mount"
-                               floatingLabelText="Test Mount"
-                               underlineShow={false}
-                               fullWidth={true}
-                               onChange={(_, v) => {
-                                   this._onTestMount(v)
-                               }}/>
+                    <TextField
+                        hintText="Environment"
+                        floatingLabelText="Environment"
+                        underlineShow={false}
+                        fullWidth={true}
+                        errorText={errorMsg}
+                        onFocus={() => {
+                            this._resetEnv()
+                        }}
+                        onBlur={() => {
+                            this._checkEnv()
+                        }}
+                        onChange={(_, v) => {
+                            this._onEnvironment(v)
+                        }}/>
                     <Divider />
                 </Dialog>
             </div>
@@ -158,8 +172,9 @@ class CreateEnv extends  Component {
     }
 }
 
-CreateEnv.propTypes = {
+CreateTest.propTypes = {
+    session: PropTypes.object.isRequired,
     onCreate: PropTypes.func.isRequired
 };
 
-export default CreateEnv
+export default CreateTest

@@ -1,6 +1,9 @@
 import request from 'superagent'
 
 const API_BASE = "http://localhost:8080";
+console.log("CONFIG JSON");
+console.log(configJson);
+console.log("__________");
 
 let dispatch = null;
 
@@ -39,6 +42,23 @@ const post = (url, data, token, onSuccessAction, onFailAction) => {
         .set('Content-Type','application/json')
         .set('Accept', 'application/json')
         .set('x-access-token', authHeader)
+        .end((err, res) => {
+            if (err || (res.statusCode !== 200 && res.statusCode !== 201)) {
+                onFailAction(res.statusCode)
+            } else {
+                onSuccessAction(res.body)
+            }
+        })
+};
+
+const put = (url, data, token, onSuccessAction, onFailAction) => {
+
+    request
+        .put(url)
+        .send(data)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json')
+        .set('x-access-token', token)
         .end((err, res) => {
             if (err || (res.statusCode !== 200 && res.statusCode !== 201)) {
                 onFailAction(res.statusCode)
@@ -101,11 +121,18 @@ export const signUp = (username, password, email, onSuccessAction, onFailAction)
 };
 
 /* Env */
-export const getEnvList = (token, onSuccessAction, onFailActon) => {
+export const getEnvList = (token, onSuccessAction, onFailAction) => {
 
     const url = API_BASE + '/env';
 
-    get(url, token, onSuccessAction, onFailActon)
+    get(url, token, onSuccessAction, onFailAction)
+};
+
+export const getEnvByName = (token, envName, onSuccessAction, onFailAction) => {
+
+    const url = API_BASE + '/env/' + envName;
+
+    get(url, token ,onSuccessAction, onFailAction)
 };
 
 export const deleteEnv = (token, envName, onSuccessAction, onFailAction) => {
@@ -119,13 +146,27 @@ export const createEnv = (token, env, onSuccessAction, onFailAction) => {
 
     const url = API_BASE + '/env';
 
-    post(url, token, onSuccessAction, onFailAction)
+    post(url, env, token, onSuccessAction, onFailAction)
 };
 
 /* Test */
 export const getTestList = (token, onSuccessAction, onFailAction) => {
 
     const url = API_BASE + '/test';
+
+    get(url, token, onSuccessAction, onFailAction)
+};
+
+export const getTestByName = (token, name, onSuccessAction, onFailAction) => {
+
+    const url = API_BASE + '/test/' + name;
+
+    get(url, token, onSuccessAction, onFailAction)
+};
+
+export const getTestFiles = (token, name, onSuccessAction, onFailAction) => {
+
+    const url = API_BASE + '/test/' + name + '/files';
 
     get(url, token, onSuccessAction, onFailAction)
 };
@@ -137,12 +178,37 @@ export const deleteTest = (token, name, onSuccessAction, onFailAction) => {
     del(url, token, onSuccessAction, onFailAction)
 };
 
+export const createTest = (token, test, onSuccessAction, onFailAction) => {
+
+    const url = API_BASE + '/test';
+
+    post(url, test, token, onSuccessAction, onFailAction);
+};
+
+export const createTestFile = (token, testName, file, onSuccessAction, onFailAction) => {
+
+    const url = API_BASE + '/test/' + testName + '/files';
+
+    post(url, file, token, onSuccessAction, onFailAction)
+};
+
 /* User */
 export const getUserList = (token, onSuccessAction, onFailAction) => {
 
     const url = API_BASE + '/user';
 
     get(url, token, onSuccessAction, onFailAction)
+};
+
+export const changeUserPermission = (token, username, newPerm, onSuccessAction, onFailAction) => {
+
+    const url = API_BASE + '/user/' + username + '/permission';
+
+    const permission = {
+        permission: newPerm
+    };
+
+    put(url, permission, token, onSuccessAction, onFailAction)
 };
 
 export const deleteUser = (token, username, onSuccessAction, onFailAction) => {
@@ -174,11 +240,25 @@ export const getTaskSubmissions = (token, taskName, onSuccessAction, onFailActio
     get(url, token, onSuccessAction, onFailAction)
 };
 
+export const submitFile = (token, taskName, file, onSuccessAction, onFailAction) => {
+
+    const url = API_BASE + '/task/' + taskName + '/submission';
+
+    post(url, file, token, onSuccessAction, onFailAction)
+};
+
 export const deleteTask = (token, taskName, onSuccessAction, onFailAction) => {
 
     const url = API_BASE + '/task/' + taskName;
 
     del(url, token, onSuccessAction, onFailAction)
+};
+
+export const createTask = (token, task, onSuccessAction, onFailAction) => {
+
+    const url  = API_BASE + '/task';
+
+    post(url, task, token, onSuccessAction, onFailAction)
 };
 
 /* Job */

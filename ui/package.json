@@ -6,7 +6,8 @@
   "author": "Szasz Tamas-Csaba",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server --content-base public/ --hot --progress --colors"
+    "start": "webpack-dev-server --content-base public/ --hot --progress --colors",
+    "build": "webpack -p"
   },
   "dependencies": {
     "material-ui": "^0.18.1",

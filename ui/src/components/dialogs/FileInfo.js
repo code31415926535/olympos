@@ -5,7 +5,7 @@ import {Dialog, FlatButton, IconButton} from "material-ui"
 import InfoOutline from 'material-ui/svg-icons/action/info-outline'
 import Syntax from "../basic/Syntax";
 
-class SubmissionFileInfo extends  Component {
+class FileInfo extends  Component {
     constructor(props) {
         super(props);
 
@@ -23,7 +23,7 @@ class SubmissionFileInfo extends  Component {
     };
 
     render() {
-        const { submission: { name, content } } = this.props;
+        const { customStyle, file: { name, content } } = this.props;
         const { dialogOpen } = this.state;
 
         const closeButton = (
@@ -34,15 +34,16 @@ class SubmissionFileInfo extends  Component {
         );
 
         return (
-            <div>
+            <div style={customStyle}>
                 <IconButton onTouchTap={() => {
                                 this._toggleDialog()
                             }}>
                     <InfoOutline />
                 </IconButton>
                 <Dialog actions={closeButton}
-                        title="Submission File"
-                        open={dialogOpen}>
+                        title={name}
+                        open={dialogOpen}
+                        autoScrollBodyContent={true}>
                     <Syntax filename={name}>
                         {content}
                     </Syntax>
@@ -52,8 +53,9 @@ class SubmissionFileInfo extends  Component {
     }
 }
 
-SubmissionFileInfo.propTypes = {
-    submission: PropTypes.object.isRequired
+FileInfo.propTypes = {
+    file: PropTypes.object.isRequired,
+    customStyle: PropTypes.object
 };
 
-export default SubmissionFileInfo
+export default FileInfo

@@ -3,9 +3,10 @@ import PropTypes from 'prop-types'
 
 import {Card, CardText, CardTitle, CardActions, IconButton} from "material-ui"
 
-import Delete from 'material-ui/svg-icons/content/clear'
 import Edit from 'material-ui/svg-icons/content/create'
 import Value from "../basic/Value"
+import SafeDelete from "../dialogs/SafeDelete";
+import ChangeUserPermission from "../dialogs/ChangeUserPermission";
 
 class UserCard extends Component {
     constructor(props) {
@@ -30,7 +31,7 @@ class UserCard extends Component {
     }
 
     render() {
-        const { user } = this.props;
+        const { user, onDelete, onEdit } = this.props;
         const { depth } = this.state;
 
         return (
@@ -48,14 +49,12 @@ class UserCard extends Component {
                     <Value label="Permission:" value={user.permission} />
                 </CardText>
                 <CardActions>
-                    <IconButton disabled={true}
-                                tooltip="Delete">
-                        <Delete />
-                    </IconButton>
-                    <IconButton disabled={true}
-                                tooltip="Change Permission">
-                        <Edit />
-                    </IconButton>
+                    <SafeDelete onDelete={() => {
+                        onDelete(user.username)
+                    }}>
+                    </SafeDelete>
+                    <ChangeUserPermission user={user}
+                                          onEdit={onEdit}/>
                 </CardActions>
             </Card>
         )
@@ -63,7 +62,9 @@ class UserCard extends Component {
 }
 
 UserCard.propTypes = {
-    user: PropTypes.object.isRequired
+    user: PropTypes.object.isRequired,
+    onDelete: PropTypes.func.isRequired,
+    onEdit: PropTypes.func.isRequired
 };
 
 UserCard.defaultProps = {

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
 
 import { signUp } from '../util'
 
@@ -8,6 +9,8 @@ import { Card, CardTitle, CardText, CardActions } from 'material-ui/Card'
 import Divider from 'material-ui/Divider'
 import RaisedButton from 'material-ui/RaisedButton'
 import ChevronRight from 'material-ui/svg-icons/navigation/chevron-right'
+import Paragraph from "./basic/Paragraph";
+import { submitLogin } from "../actions/index";
 
 class RegisterForm extends Component {
     constructor(props) {
@@ -19,17 +22,24 @@ class RegisterForm extends Component {
             confirmPassword: "",
             email: "",
 
-            match: true
+            match: true,
+
+            error: null
         }
     }
 
     _onSignUp() {
+        const { onLogin } = this.props;
         const { username, password, email } = this.state;
 
         signUp(username, password, email, () => {
-            console.log("OK")
+            onLogin(username, password)
         }, () => {
-            console.log("FAIL")
+            this.setState((state) => {
+                return Object.assign({}, state, {
+                    error: "Failed to register"
+                })
+            })
         })
     }
 
@@ -67,10 +77,13 @@ class RegisterForm extends Component {
     }
 
     render() {
-        const { match } = this.state;
+        const { match, error } = this.state;
 
         const errorMsg = match ? "" : "Password must match";
-        console.log(this.state);
+
+        const requestErrorMsg = error === null ? null : (
+            <Paragraph text={error} color='error'/>
+        );
 
         return (
             <Card zDepth={2}>
@@ -122,6 +135,7 @@ class RegisterForm extends Component {
                     padding: "35px"
 
                 }}>
+                    {requestErrorMsg}
                     <RaisedButton label="Register"
                                   labelPosition="before"
                                   primary={true}
@@ -136,4 +150,25 @@ class RegisterForm extends Component {
     }
 }
 
-export default RegisterForm
+RegisterForm.propTypes = {
+    onLogin: PropTypes.func.isRequired
+};
+
+const mapStateToProps = () => {
+    return {}
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onLogin: (username, password) => {
+            dispatch(submitLogin(username, password))
+        }
+    }
+};
+
+const ReduxRegisterForm = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(RegisterForm);
+
+export default ReduxRegisterForm

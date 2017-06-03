@@ -1,14 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
-import {Card, CardHeader, CardText, CardTitle, CardActions, IconButton} from "material-ui"
+import { getTestFiles } from '../../util'
 
-import Delete from 'material-ui/svg-icons/content/clear'
-import Edit from 'material-ui/svg-icons/content/create'
-import More from 'material-ui/svg-icons/navigation/more-horiz'
+import {Card, CardHeader, CardText, CardTitle, CardActions} from "material-ui"
 
 import Value from "../basic/Value"
 import Multiline from "../basic/Multiline"
+import SafeDelete from "../dialogs/SafeDelete";
+import FileInfo from "../dialogs/FileInfo";
+import SubmitFile from "../dialogs/SubmitFile";
 
 class TestCard extends Component {
     constructor(props) {
@@ -16,9 +17,25 @@ class TestCard extends Component {
 
         this.state = {
             expended: false,
-            depth: 1
+            depth: 1,
+
+            files: []
         }
     }
+
+    componentWillMount() {
+        const { session: {token}, test: {name} } = this.props;
+
+        getTestFiles(token, name, (result) => {
+            this.setState((state) => {
+                return Object.assign({}, state, {
+                    files: result,
+                })
+            })
+        }, () => {
+            console.log("FAILED TO GET FILES!")
+        })
+    };
 
     _hover(on) {
         let depth = 1;
@@ -34,7 +51,8 @@ class TestCard extends Component {
     }
 
     render() {
-        const { test, maxTextLength } = this.props;
+        const { files } = this.state;
+        const { test, maxTextLength, onDelete, onAddFile } = this.props;
 
         const { depth, expanded } = this.state;
 
@@ -72,20 +90,19 @@ class TestCard extends Component {
                 </CardText>
                 <CardText expandable={true}>
                     <Value label="Running environment: " value={test.env.name} />
+                    {files.map((file, key) => {
+                        return (
+                            <Value key={key} label={file.name} value={<FileInfo  customStyle={{float: "right"}} file={file} />} />
+                        )
+                    })}
                 </CardText>
                 <CardActions>
-                    <IconButton disabled={true}
-                                tooltip="Delete">
-                        <Delete />
-                    </IconButton>
-                    <IconButton disabled={true}
-                                tooltip="Edit">
-                        <Edit />
-                    </IconButton>
-                    <IconButton disabled={true}
-                                tooltip="More">
-                        <More />
-                    </IconButton>
+                    <SafeDelete onDelete={() => {
+                        onDelete(test.name)
+                    }}/>
+                    <SubmitFile onSubmit={(file) => {
+                        onAddFile(test.name, file)
+                    }}/>
                 </CardActions>
             </Card>
         )
@@ -94,7 +111,10 @@ class TestCard extends Component {
 
 TestCard.propTypes = {
     test: PropTypes.object.isRequired,
-    maxTextLength: PropTypes.number
+    maxTextLength: PropTypes.number,
+    onDelete: PropTypes.func.isRequired,
+    onAddFile: PropTypes.func.isRequired,
+    session: PropTypes.object.isRequired
 };
 
 TestCard.defaultProps = {

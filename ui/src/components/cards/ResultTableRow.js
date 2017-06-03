@@ -6,7 +6,7 @@ import { getJobResult } from '../../util/index'
 import {CircularProgress, TableRow, TableRowColumn} from "material-ui"
 
 import ErrorOutline from 'material-ui/svg-icons/alert/error-outline'
-import SubmissionFileInfo from "../dialogs/SubmissionFileInfo";
+import FileInfo from "../dialogs/FileInfo";
 import SubmissionResultInfo from "../dialogs/SubmissionResultInfo";
 
 class ResultTableRow extends Component {
@@ -58,7 +58,7 @@ class ResultTableRow extends Component {
             <TableRow>
                 <TableRowColumn> {id + 1} </TableRowColumn>
                 <TableRowColumn> {by} </TableRowColumn>
-                <TableRowColumn> <SubmissionFileInfo submission={file} /> </TableRowColumn>
+                <TableRowColumn> <FileInfo file={file} /> </TableRowColumn>
                 <TableRowColumn> {resultValue} </TableRowColumn>
             </TableRow>
         )

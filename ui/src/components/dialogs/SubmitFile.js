@@ -43,6 +43,19 @@ class SubmitFile extends  Component {
 
     };
 
+    _onSubmit() {
+        const { file } = this.state;
+        const { onSubmit } = this.props;
+
+        onSubmit(file);
+        this.setState((state) => {
+            return Object.assign({}, state, {
+                fileSelected: false,
+                dialogOpen: false
+            })
+        })
+    };
+
     _toggleDialog() {
         this.setState((state) => {
             return Object.assign({}, state, {
@@ -82,7 +95,10 @@ class SubmitFile extends  Component {
 
         const actionsSecond = [(
             <FlatButton label="Upload"
-                        primary={true} />
+                        primary={true}
+                        onTouchTap={() => {
+                            this._onSubmit()
+                        }}/>
         ), (
             <FlatButton label="Cancel"
                         onTouchTap={() => {
@@ -119,6 +135,8 @@ class SubmitFile extends  Component {
     }
 }
 
-SubmitFile.propTypes = {};
+SubmitFile.propTypes = {
+    onSubmit: PropTypes.func.isRequired
+};
 
 export default SubmitFile

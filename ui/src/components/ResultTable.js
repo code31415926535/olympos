@@ -66,7 +66,7 @@ class ResultTable extends Component {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {submissions.map((item, key) => {
+                        {submissions.reverse().map((item, key) => {
                             return (
                                 <ResultTableRow session={session} submission={item} key={key} />
                             )

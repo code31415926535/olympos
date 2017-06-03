@@ -7,6 +7,7 @@ import Delete from 'material-ui/svg-icons/content/clear'
 
 import Multiline from "../basic/Multiline"
 import Value from "../basic/Value";
+import SafeDelete from "../dialogs/SafeDelete";
 
 class TaskCard extends Component {
     constructor(props) {
@@ -32,7 +33,7 @@ class TaskCard extends Component {
     }
 
     render() {
-        const { task, maxTextLength } = this.props;
+        const { task, maxTextLength, onDelete } = this.props;
 
         const { depth, expanded } = this.state;
 
@@ -72,10 +73,9 @@ class TaskCard extends Component {
                     <Value label="Corresponding test:" value={task.test.name} />
                 </CardText>
                 <CardActions>
-                    <IconButton disabled={true}
-                                tooltip="Delete">
-                        <Delete />
-                    </IconButton>
+                    <SafeDelete onDelete={() => {
+                        onDelete(task.name)
+                    }}/>
                 </CardActions>
             </Card>
         )
@@ -84,7 +84,8 @@ class TaskCard extends Component {
 
 TaskCard.propTypes = {
     task: PropTypes.object.isRequired,
-    maxTextLength: PropTypes.number
+    maxTextLength: PropTypes.number,
+    onDelete: PropTypes.func.isRequired
 };
 
 TaskCard.defaultProps = {

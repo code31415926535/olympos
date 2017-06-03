@@ -83,8 +83,7 @@ class LoginForm extends Component {
                                   labelPosition="before"
                                   primary={true}
                                   icon={<ChevronRight/>}
-                                  onClick={(e) => {
-                                      e.preventDefault();
+                                  onClick={() => {
                                       onLogin(this.state.username, this.state.password)
                                   }}/>
                 </CardActions>

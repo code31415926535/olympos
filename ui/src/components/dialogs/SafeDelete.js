@@ -30,7 +30,7 @@ class SafeDelete extends Component {
             <FlatButton label="Yes"
                         primary={true}
                         onClick={() => {
-                            onDelete()
+                            onDelete();
                             this._toggleDialog()
                         }} />
         ),(

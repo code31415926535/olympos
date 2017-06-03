@@ -15,9 +15,13 @@ class Syntax extends Component {
 
         const extension = filename.split('.').pop();
 
-        let language = "cpp";
+        let language = "less";
         if (extension === "py") {
             language = "python";
+        } else if (extension === "c" || extension === "cpp") {
+            language = "cpp";
+        } else if (extension === "yaml" || extension === "yml") {
+            language = "yaml";
         }
 
         let style = null;
