@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import {Dialog, FlatButton, IconButton} from "material-ui"
 import InfoOutline from 'material-ui/svg-icons/action/info-outline'
-import Multiline from "../basic/Multiline"
+import Syntax from "../basic/Syntax";
 
 class SubmissionFileInfo extends  Component {
     constructor(props) {
@@ -23,7 +23,7 @@ class SubmissionFileInfo extends  Component {
     };
 
     render() {
-        const { submissionFile } = this.props;
+        const { submission: { name, content } } = this.props;
         const { dialogOpen } = this.state;
 
         const closeButton = (
@@ -43,7 +43,9 @@ class SubmissionFileInfo extends  Component {
                 <Dialog actions={closeButton}
                         title="Submission File"
                         open={dialogOpen}>
-                    <Multiline text={submissionFile} />
+                    <Syntax filename={name}>
+                        {content}
+                    </Syntax>
                 </Dialog>
             </div>
         )
@@ -51,7 +53,7 @@ class SubmissionFileInfo extends  Component {
 }
 
 SubmissionFileInfo.propTypes = {
-    submissionFile: PropTypes.string.isRequired
+    submission: PropTypes.object.isRequired
 };
 
 export default SubmissionFileInfo

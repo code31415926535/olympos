@@ -11,6 +11,7 @@ import {CircularProgress, Tab, Tabs} from "material-ui"
 import Header from "../components/basic/Header"
 import Multiline from "../components/basic/Multiline"
 import ResultTable from "../components/ResultTable";
+import SubmitFile from "../components/dialogs/SubmitFile";
 
 class Task extends Component {
     constructor(props) {
@@ -72,7 +73,9 @@ class Task extends Component {
                                 margin: "10px",
                                 padding: "35px"
                             }}>
-                                <Header text={taskData.name} />
+                                <Header text={taskData.name}>
+                                    <SubmitFile />
+                                </Header>
                                 <Multiline text={taskData.description} />
                             </div>
                         </Tab>

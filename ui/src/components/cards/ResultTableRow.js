@@ -43,7 +43,9 @@ class ResultTableRow extends Component {
         const { submission: { id, by, file } } = this.props;
         const { result, error } = this.state;
 
-        let resultValue = null;
+        let resultValue = (
+            <SubmissionResultInfo resultModel={result} />
+        );
         if (error !== null) {
             resultValue (<ErrorOutline />)
         }
@@ -52,14 +54,12 @@ class ResultTableRow extends Component {
             resultValue =  (<CircularProgress size={40} />)
         }
 
-        console.log(result);
-
         return (
             <TableRow>
                 <TableRowColumn> {id + 1} </TableRowColumn>
                 <TableRowColumn> {by} </TableRowColumn>
-                <TableRowColumn> <SubmissionFileInfo submissionFile={file.content} /> </TableRowColumn>
-                <TableRowColumn> <SubmissionResultInfo resultModel={result} /> </TableRowColumn>
+                <TableRowColumn> <SubmissionFileInfo submission={file} /> </TableRowColumn>
+                <TableRowColumn> {resultValue} </TableRowColumn>
             </TableRow>
         )
     }

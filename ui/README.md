@@ -13,3 +13,9 @@
 
 ### Grid System
  - https://www.npmjs.com/package/react-grid-system
+ 
+### Syntax
+ - https://github.com/conorhastings/react-syntax-highlighter
+ 
+### Unique Id Generator
+ - https://www.npmjs.com/package/react-html-id

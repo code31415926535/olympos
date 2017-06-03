@@ -43,7 +43,7 @@ class LoginForm extends Component {
         const { session, onLogin } = this.props;
 
         const errorMsg = session.error === null ? null : (
-          <Paragraph text={session.error} color='accent'/>
+          <Paragraph text={session.error} color='error'/>
         );
 
         return (
