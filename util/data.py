@@ -2,6 +2,7 @@ import requests
 import time
 import sys
 
+
 class User:
     def __init__(self):
         pass
@@ -283,9 +284,10 @@ class Job:
         job_result = {}
 
         response = requests.post(API_SERVER + "/job/{}/result".format(uuid), json=job_result,
-                            headers={"x-access-token": token})
+                                 headers={"x-access-token": token})
 
         return response.status_code
+
 
 def expect(actual, expected, message):
     if actual != expected:
@@ -684,9 +686,9 @@ def create_mock_users(token):
 
 # MOCK DATA START
 envs = [{
-            "name": "Gaia-1.0",
-            "image": "olympos/gaia:1.0",
-            "description": """Gaia is the base test environment provided with olympos. It is capable of testing "python 2.7", "c", and "c++" programs.
+    "name": "Gaia-1.0",
+    "image": "olympos/gaia:1.0",
+    "description": """Gaia is the base test environment provided with olympos. It is capable of testing "python 2.7", "c", and "c++" programs.
 It has the following commands:
 1. Bash: Execute a bash "command" with an "arg" list.
 2. Assert File: Check if two files are equal.
@@ -696,8 +698,8 @@ It has the following commands:
 6. Python: Execute a python script.
 7. PythonIO: Execute a python script while using "input" as the input file and "output" as the output file.
 """,
-            "test_mount": "/mnt/test",
-            "out_mount": "/mnt/out"
+    "test_mount": "/mnt/test",
+    "out_mount": "/mnt/out"
 }]
 
 tests = [{
@@ -775,7 +777,7 @@ The program needs to be written in c.
         case: "relative-prime"
       do:
         execute:
-          name: "bashio"
+          name: "bash_io"
           arg:
             command: "./a"
             args: ""
@@ -790,7 +792,7 @@ The program needs to be written in c.
         case: "have-divisors"
       do:
         execute:
-          name: "bashio"
+          name: "bash_io"
           arg:
             command: "./a"
             args: ""
@@ -805,9 +807,10 @@ The program needs to be written in c.
         case: "one-divides-another"
       do:
         execute:
-          name: "bashio"
+          name: "bash_io"
           arg:
             command: "./a"
+            args: ""
             input: "./in/oda.in"
             output: "./gcd.out"
         evaluate:
@@ -865,7 +868,7 @@ The program needs to be written in cpp.
             input: "./1.be"
             output: "./kimenet"
         evaluate:
-          name: "assert_file"
+          name: "compare_fmt"
           arg:
             actual: "./kimenet"
             expected: "1.ki"
@@ -880,7 +883,7 @@ The program needs to be written in cpp.
             input: "./2.be"
             output: "./kimenet"
         evaluate:
-          name: "assert_file"
+          name: "compare_fmt"
           arg:
             actual: "./kimenet"
             expected: "2.ki"
@@ -895,7 +898,7 @@ The program needs to be written in cpp.
             input: "./3.be"
             output: "./kimenet"
         evaluate:
-          name: "assert_file"
+          name: "compare_fmt"
           arg:
             actual: "./kimenet"
             expected: "3.ki"
@@ -910,7 +913,7 @@ The program needs to be written in cpp.
             input: "./4.be"
             output: "./kimenet"
         evaluate:
-          name: "assert_file"
+          name: "compare_fmt"
           arg:
             actual: "./kimenet"
             expected: "4.ki"
@@ -925,7 +928,7 @@ The program needs to be written in cpp.
             input: "./5.be"
             output: "./kimenet"
         evaluate:
-          name: "assert_file"
+          name: "compare_fmt"
           arg:
             actual: "./kimenet"
             expected: "5.ki"
@@ -940,7 +943,7 @@ The program needs to be written in cpp.
             input: "./6.be"
             output: "./kimenet"
         evaluate:
-          name: "assert_file"
+          name: "compare_fmt"
           arg:
             actual: "./kimenet"
             expected: "6.ki"
@@ -982,6 +985,84 @@ The program needs to be written in cpp.
     }, {
         "name": "6.ki",
         "content": """2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103 107 109 113"""
+    }]
+}, {
+    "test": {
+        "name": "Factorial",
+        "description": """A test for a python program that calculates the factorial of "n".
+
+The program needs to be written in python.""",
+        "env": envs[0]
+    },
+    "files": [{
+        "name": "config.yaml",
+        "content": """run:
+  init: []
+  test:
+    - for:
+        case: "zero"
+      do:
+        execute:
+          name: "python_io"
+          arg:
+            command: "factorial.py"
+            args: ""
+            input: "zero.in"
+            output: "out"
+        evaluate:
+          name: "compare_fmt"
+          arg:
+            actual: "out"
+            expected: "zero.out"
+    - for:
+        case: "small"
+      do:
+        execute:
+          name: "python_io"
+          arg:
+            command: "factorial.py"
+            args: ""
+            input: "small.in"
+            output: "out"
+        evaluate:
+          name: "compare_fmt"
+          arg:
+            actual: "out"
+            expected: "small.out"
+    - for:
+        case: "large"
+      do:
+        execute:
+          name: "python_io"
+          arg:
+            command: "factorial.py"
+            args: ""
+            input: "large.in"
+            output: "out"
+        evaluate:
+          name: "compare_fmt"
+          arg:
+            actual: "out"
+            expected: "large.out"
+"""
+    }, {
+        "name": "zero.in",
+        "content": """0"""
+    }, {
+        "name": "zero.out",
+        "content": """1"""
+    }, {
+        "name": "small.in",
+        "content": """5"""
+    }, {
+        "name": "small.out",
+        "content": """120"""
+    }, {
+        "name": "large.in",
+        "content": """52"""
+    }, {
+        "name": "large.out",
+        "content": """80658175170943878571660636856403766975289505440883277824000000000000"""
     }]
 }]
 
@@ -1026,14 +1107,20 @@ NOTE: You need to print the first "n" prime numbers, not prime number less than 
 
 The filename: "prim.cpp" """,
     "test": tests[2]["test"]
+}, {
+    "name": "Factorial",
+    "description": """The task is to write a "python" program that reads a number "n" then prints n factorial.
+
+The filename: "factorial.py" """,
+    "test": tests[3]["test"]
 }]
 
 submissions = [{
     "username": "hercules",
     "password": "password",
     "file": {
-            "name": "hello.c",
-            "content": """#include <stdio.h>
+        "name": "hello.c",
+        "content": """#include <stdio.h>
 
 int main() {
     FILE *f;
@@ -1063,8 +1150,8 @@ asd
     "username": "hercules",
     "password": "password",
     "file": {
-            "name": "hello.c",
-            "content": """#include <stdio.h>
+        "name": "hello.c",
+        "content": """#include <stdio.h>
 
 int main() {
     FILE *f;
@@ -1094,8 +1181,8 @@ int main() {
     "username": "odysseus",
     "password": "password",
     "file": {
-            "name": "prim.cpp",
-            "content": """#include <iostream>
+        "name": "prim.cpp",
+        "content": """#include <iostream>
 #include <cmath>
 using namespace std;
 
@@ -1126,7 +1213,66 @@ int main()
 """
     },
     "toTask": "First n prime numbers"
+}, {
+    "username": "odysseus",
+    "password": "password",
+    "file": {
+        "name": "factorial.py",
+        "content": """def factorial(n):
+    if n is 1:
+        return 1
+
+    return factorial(n-1)*n
+
+N = int(input())
+print factorial(N)
+"""
+    },
+    "toTask": "Factorial"
+}, {
+    "username": "odysseus",
+    "password": "password",
+    "file": {
+        "name": "factorial.py",
+        "content": """def factorial(n):
+    if n is 0:
+        return 1
+
+    if n is 1:
+        return 1
+
+    return factorial(n-1)*n
+i
+N = int(input())
+print factorial(N)
+"""
+    },
+    "toTask": "Factorial"
+}, {
+    "username": "odysseus",
+    "password": "password",
+    "file": {
+        "name": "gcd.c",
+        "content": """#include <stdio.h>
+
+int gcd(int a, int b) {
+    if ( (a % b) == 0)
+        return b;
+    return gcd(b, a % b);
+}
+
+int main() {
+    int a, b;
+
+    scanf("%d", &a);
+    scanf("%d", &b);
+    printf("%d", gcd(a,b));
+}
+"""
+    },
+    "toTask": "Greatest Common Divisor"
 }]
+
 
 # MOCK DATA END
 

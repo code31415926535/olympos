@@ -35,7 +35,7 @@ func (t *Python) Configure(args map[string]string) statusCode {
 }
 
 func (t *Python) Execute() statusCode {
-	err := exec.Command("python", t.args...).Run()
+	err := exec.Command("python2.7", t.args...).Run()
 
 	if err != nil {
 		log.Printf("execute error: %s\n", err.Error())

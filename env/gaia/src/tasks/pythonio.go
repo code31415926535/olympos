@@ -63,7 +63,7 @@ func (t *PythonIO) Execute() statusCode {
 		return StatusExecutionError
 	}
 
-	cmd := exec.Command("python", t.args...)
+	cmd := exec.Command("python2.7", t.args...)
 	cmd.Stdin = inputFile
 	cmd.Stdout = outputFile
 
