@@ -2,6 +2,11 @@
 
 source ./install.conf
 
+echo "Removing UI ..."
+docker stop ${APHRODITE_HOSTNAME}
+docker rm ${APHRODITE_HOSTNAME}
+echo "UI removed ..."
+
 echo "Removing Jobrunner ..."
 docker stop ${HERMES_HOSTNAME}
 docker rm ${HERMES_HOSTNAME}

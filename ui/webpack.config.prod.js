@@ -1,4 +1,4 @@
-var webpack = require('webpack');
+const webpack = require('webpack');
 
 const path = require('path');
 
@@ -42,7 +42,8 @@ const config = {
                 keep_fnames: true
             },
             compress: {
-                screw_ie8: true
+                screw_ie8: true,
+                warnings: false
             },
             comments: false
         })

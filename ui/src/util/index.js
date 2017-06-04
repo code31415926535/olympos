@@ -1,9 +1,12 @@
 import request from 'superagent'
 
-const API_BASE = "http://localhost:8080";
-console.log("CONFIG JSON");
+let API_BASE = "http://localhost:8080";
+
+if (configJson) {
+    API_BASE = configJson.backendUrl;
+}
+
 console.log(configJson);
-console.log("__________");
 
 let dispatch = null;
 

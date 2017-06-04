@@ -111,7 +111,22 @@ if [ $? -ne 0 ]; then
 fi
 echo "Sample jobs test finished with success!"
 
-# TODO: Deploy UI server
+# ui
+echo "Deploying UI server ..."
+docker run \
+--name ${APHRODITE_HOSTNAME} \
+--hostname ${APHRODITE_HOSTNAME} \
+--network ${OLYMPOS_NET} \
+-e ARES_HOSTNAME=${ARES_HOSTNAME} -e ARES_PORT=${ARES_PORT} \
+-e APHRODITE_PORT=${APHRODITE_PORT} \
+--expose ${APHRODITE_PORT} \
+-p ${APHRODITE_PORT}:${APHRODITE_PORT} \
+-d olympos/aphrodite:latest &>/dev/null
+if [ $? -ne 0 ]; then
+    echo "Failed to deploy UI server ... exiting ..."
+    exit 1
+fi
+echo "UI server deployed!"
 
 echo
 echo "-----------------------------------------------------"
@@ -121,7 +136,7 @@ echo "Here are some useful tips: "
 echo "  - keep the 'install.conf' file, since it is used by the uninstall script."
 echo "    Olympos can still be removed manually, but it is more difficult that way."
 echo "  - to get started, visit the olympos built-in user interface 'aphrodite':"
-echo "    <aphrodite url here>"
+echo "    http://localhost:${APHRODITE_PORT}"
 echo "  - you can also check out the rest application programming interface documentation at:"
 echo "    http://localhost:${ARES_PORT}/swagger"
 echo

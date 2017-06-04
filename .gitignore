@@ -1,10 +1,16 @@
 /api/src/node_modules/*
-/tests/*
+/api/src/.idea/*
+/api/.idea/*
+
 /env/gaia/.idea/*
+/env/gaia/src/gaia
+
 /util/.idea/*
+
 /jobrunner/.idea/*
 /jobrunner/src/github.com/*
 /jobrunner/src/google.golang.org/*
 /jobrunner/src/golang.org/*
 /jobrunner/src/gopkg.in/*
 /jobrunner/pkg/*
+/jobrunner/src/hermes

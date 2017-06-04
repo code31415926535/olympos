@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start": "webpack-dev-server --content-base public/ --hot --progress --colors",
-    "build": "webpack -p"
+    "build": "NODE_ENV=production webpack -p"
   },
   "dependencies": {
     "material-ui": "^0.18.1",
