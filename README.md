@@ -6,13 +6,27 @@ Olympos is my Final Examination proiect. It consists of 5 modules:
  - Hermes: jobrunner.
  - Gaia: testing environment.
  - Aphrodite: ui.
- 
+
+For more information regarding each module, check out:
+ - [Athena](db/README.md)
+ - [Ares](api/README.md)
+ - [Hermes](jobrunner/README.md)
+ - [Gaia](env/gaia/README.md)
+ - [Aphrodite](ui/README.md)
+
 # How to run
 
 ## Prerequisites
 
+### Runtime
 Docker - version >= `1.12.6`
+
+### Building
 Go - version >= `1.8`
+
+npm - version `5.0.0`
+
+node - version `8.0.0`
 
 ## Build
 
@@ -41,7 +55,10 @@ cd ./jobrunner
 ```
 
 To build the ui:
-`WORK IN PROGRESS`
+```sh
+cd ./ui
+./build.sh
+```
 
 ## Running
 
